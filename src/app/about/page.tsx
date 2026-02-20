@@ -55,18 +55,32 @@ function AboutContent() {
                                 Our <span className="text-gradient">Story</span>
                             </h2>
                             <p className="text-lg text-slate-400 mb-6">
-                                Founded by alumni of top European universities, NextUp Mentor was born from a simple
-                                observation: too many talented Bangladeshi students miss out on incredible European
-                                opportunities due to lack of proper guidance.
+                                NextUp Mentor was founded by current and former students who are already living
+                                and studying across Europe. We started this mentorship firm not as a traditional
+                                agency, but as students who have personally experienced the challenges, confusion,
+                                and struggles of moving abroad.
                             </p>
                             <p className="text-lg text-slate-400 mb-6">
-                                Our team of experienced mentors, who themselves studied and worked in Europe, provide
-                                personalized guidance at every step of your journey. We don&apos;t just process
-                                applications—we build futures.
+                                We have gone through the same visa processes, documentation pressure, financial
+                                concerns, cultural adjustments, and academic transitions that upcoming students are
+                                preparing to face. Because we lived it ourselves, we understand exactly what guidance
+                                a student truly needs — and what they don’t.
                             </p>
-                            <p className="text-lg text-slate-400">
-                                Today, we&apos;ve helped hundreds of students secure admissions and visas to their dream
-                                European universities, with a success rate that speaks for itself.
+                            <p className="text-lg text-slate-400 mb-6">
+                                Instead of following the typical agency formula, we believe in complete transparency
+                                and student control. There are no hidden charges, no unclear procedures, and no
+                                restricted access. Students maintain full access to their applications and make
+                                payments directly themselves. Our role is to guide, support, and ensure every step
+                                is taken correctly and confidently.
+                            </p>
+                            <p className="text-lg text-slate-400 mb-6 italic underline decoration-amber-500/30 underline-offset-8">
+                                We created NextUp Mentor with one simple vision:
+                                To guide students toward the life we are already living — with honesty, clarity,
+                                and real experience behind every piece of advice.
+                            </p>
+                            <p className="text-lg text-slate-200 font-semibold">
+                                We don’t just assist with applications. We mentor, support, and walk beside you —
+                                because we are students first, and mentors by experience.
                             </p>
                         </motion.div>
 
