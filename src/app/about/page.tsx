@@ -31,9 +31,9 @@ function AboutContent() {
                             Your <span className="text-gradient">Trusted Partner</span> for European Education
                         </h1>
                         <p className="text-xl text-slate-400 max-w-3xl mx-auto">
-                            NextUp Mentor is Bangladesh&apos;s premier study abroad consultancy specializing in
-                            European destinations. With years of experience and hundreds of successful placements,
-                            we guide ambitious students from application to graduation.
+                            NextUp Mentor is a premium study abroad consultancy in Bangladesh specializing in
+                            European destinations. We provide structured, transparent, and student-focused
+                            guidance from university application to visa processing and beyond.
                         </p>
                     </motion.div>
                 </div>
