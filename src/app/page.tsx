@@ -94,7 +94,7 @@ function HomeContent() {
             className="grid grid-cols-2 gap-4"
           >
             {[
-              { icon: "🏛️", title: "Free Tuition", desc: "Available in Germany" },
+              { icon: "🏛️", title: "Free Tuition", desc: "Available in Italy" },
               { icon: "🇪🇺", title: "Schengen", desc: "Travel 27 countries" },
               { icon: "💼", title: "Work Rights", desc: "Part-time allowed" },
               { icon: "🎓", title: "English", desc: "Taught programs" },
