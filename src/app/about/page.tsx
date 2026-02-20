@@ -92,21 +92,21 @@ function AboutContent() {
                             className="grid grid-cols-2 gap-4"
                         >
                             {[
-                                { number: "500+", label: "Students Placed" },
-                                { number: "95%", label: "Visa Success Rate" },
-                                { number: "15+", label: "Partner Universities" },
-                                { number: "5+", label: "Years Experience" },
-                            ].map((stat, index) => (
+                                { title: "3-Step Process", label: "University Selection → Application → Visa Guidance" },
+                                { title: "100% Transparent", label: "No Hidden Charges Policy" },
+                                { title: "1-on-1 Mentorship", label: "Direct Access to European-Based Mentors" },
+                                { title: "0 Agency Tricks", label: "Students Control Their Own Payments" },
+                            ].map((item, index) => (
                                 <motion.div
-                                    key={stat.label}
-                                    className="glass-card rounded-2xl p-6 text-center hover:scale-105 transition-transform duration-300"
+                                    key={item.title}
+                                    className="glass-card rounded-2xl p-6 text-center hover:scale-105 transition-transform duration-300 flex flex-col justify-center"
                                     initial={{ opacity: 0, y: 30 }}
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true }}
                                     transition={{ duration: 0.4, delay: index * 0.1 }}
                                 >
-                                    <div className="text-3xl md:text-4xl font-bold text-gradient mb-2">{stat.number}</div>
-                                    <p className="text-sm text-slate-400">{stat.label}</p>
+                                    <div className="text-xl md:text-2xl font-bold text-gradient mb-3">{item.title}</div>
+                                    <p className="text-sm text-slate-400 font-medium leading-relaxed">{item.label}</p>
                                 </motion.div>
                             ))}
                         </motion.div>
