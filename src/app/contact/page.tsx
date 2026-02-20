@@ -159,12 +159,7 @@ function ContactContent() {
                             <div className="space-y-6">
                                 {[
                                     {
-                                        icon: "📍",
-                                        title: "Our Office",
-                                        details: ["Dhaka, Bangladesh", "Gulshan-2, Road 45"],
-                                    },
-                                    {
-                                        icon: "📧",
+                                        icon: "",
                                         title: "Email Us",
                                         details: ["nextupmentor@gmail.com"],
                                     },
