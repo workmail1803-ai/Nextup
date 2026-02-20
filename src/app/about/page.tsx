@@ -44,71 +44,46 @@ function AboutContent() {
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
 
                 <div className="max-w-7xl mx-auto relative z-10">
-                    <div className="grid lg:grid-cols-2 gap-16 items-center">
+                    <div className="max-w-4xl mx-auto">
                         <motion.div
-                            initial={{ opacity: 0, x: -50 }}
-                            whileInView={{ opacity: 1, x: 0 }}
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.6 }}
+                            className="text-center"
                         >
-                            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+                            <h2 className="text-3xl md:text-5xl font-bold text-white mb-8">
                                 Our <span className="text-gradient">Story</span>
                             </h2>
-                            <p className="text-lg text-slate-400 mb-6">
+                            <p className="text-lg md:text-xl text-slate-400 mb-8 leading-relaxed">
                                 NextUp Mentor was founded by current and former students who are already living
                                 and studying across Europe. We started this mentorship firm not as a traditional
                                 agency, but as students who have personally experienced the challenges, confusion,
                                 and struggles of moving abroad.
                             </p>
-                            <p className="text-lg text-slate-400 mb-6">
+                            <p className="text-lg md:text-xl text-slate-400 mb-8 leading-relaxed">
                                 We have gone through the same visa processes, documentation pressure, financial
                                 concerns, cultural adjustments, and academic transitions that upcoming students are
                                 preparing to face. Because we lived it ourselves, we understand exactly what guidance
                                 a student truly needs — and what they don’t.
                             </p>
-                            <p className="text-lg text-slate-400 mb-6">
+                            <p className="text-lg md:text-xl text-slate-400 mb-8 leading-relaxed">
                                 Instead of following the typical agency formula, we believe in complete transparency
                                 and student control. There are no hidden charges, no unclear procedures, and no
                                 restricted access. Students maintain full access to their applications and make
                                 payments directly themselves. Our role is to guide, support, and ensure every step
                                 is taken correctly and confidently.
                             </p>
-                            <p className="text-lg text-slate-400 mb-6 italic underline decoration-amber-500/30 underline-offset-8">
-                                We created NextUp Mentor with one simple vision:
-                                To guide students toward the life we are already living — with honesty, clarity,
-                                and real experience behind every piece of advice.
+                            <div className="my-12 p-8 glass-card rounded-2xl border-l-4 border-amber-500 bg-amber-500/5">
+                                <p className="text-xl md:text-2xl text-slate-200 italic font-medium">
+                                    "To guide students toward the life we are already living — with honesty, clarity,
+                                    and real experience behind every piece of advice."
+                                </p>
+                            </div>
+                            <p className="text-xl md:text-2xl text-white font-bold tracking-tight">
+                                We don’t just assist with applications. <br className="hidden md:block" />
+                                We mentor, support, and walk beside you — because we are students first, and mentors by experience.
                             </p>
-                            <p className="text-lg text-slate-200 font-semibold">
-                                We don’t just assist with applications. We mentor, support, and walk beside you —
-                                because we are students first, and mentors by experience.
-                            </p>
-                        </motion.div>
-
-                        <motion.div
-                            initial={{ opacity: 0, x: 50 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.6 }}
-                            className="grid grid-cols-2 gap-4"
-                        >
-                            {[
-                                { title: "3-Step Process", label: "University Selection → Application → Visa Guidance" },
-                                { title: "100% Transparent", label: "No Hidden Charges Policy" },
-                                { title: "1-on-1 Mentorship", label: "Direct Access to European-Based Mentors" },
-                                { title: "0 Agency Tricks", label: "Students Control Their Own Payments" },
-                            ].map((item, index) => (
-                                <motion.div
-                                    key={item.title}
-                                    className="glass-card rounded-2xl p-6 text-center hover:scale-105 transition-transform duration-300 flex flex-col justify-center"
-                                    initial={{ opacity: 0, y: 30 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ duration: 0.4, delay: index * 0.1 }}
-                                >
-                                    <div className="text-xl md:text-2xl font-bold text-gradient mb-3">{item.title}</div>
-                                    <p className="text-sm text-slate-400 font-medium leading-relaxed">{item.label}</p>
-                                </motion.div>
-                            ))}
                         </motion.div>
                     </div>
                 </div>
