@@ -166,17 +166,21 @@ function ContactContent() {
                                     {
                                         icon: "📧",
                                         title: "Email Us",
-                                        details: ["info@nextupmentor.com", "support@nextupmentor.com"],
+                                        details: ["nextupmentor@gmail.com"],
                                     },
                                     {
                                         icon: "📞",
                                         title: "Call Us",
-                                        details: ["+880 1XXX-XXXXXX", "Available 10 AM - 8 PM (BST)"],
+                                        details: ["+8801726867991", "Available 10 AM - 8 PM (BST)"],
                                     },
                                     {
                                         icon: "🌐",
                                         title: "Follow Us",
-                                        details: ["Facebook: @NextUpMentor", "Instagram: @nextupmentor"],
+                                        details: [] as string[],
+                                        links: [
+                                            { label: "Facebook: @NextUpMentor", url: "https://www.facebook.com/profile.php?id=61585820771768" },
+                                            { label: "Instagram: @nextup_mentor", url: "https://www.instagram.com/nextup_mentor?igsh=MTNyZmprYjYwYjRtNw==" },
+                                        ],
                                     },
                                 ].map((item, index) => (
                                     <motion.div
@@ -194,6 +198,17 @@ function ContactContent() {
                                                 <p key={detail} className="text-sm text-slate-400">
                                                     {detail}
                                                 </p>
+                                            ))}
+                                            {"links" in item && item.links?.map((link) => (
+                                                <a
+                                                    key={link.url}
+                                                    href={link.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="block text-sm text-amber-400 hover:text-amber-300 hover:underline transition-colors"
+                                                >
+                                                    {link.label}
+                                                </a>
                                             ))}
                                         </div>
                                     </motion.div>
