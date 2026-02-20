@@ -23,7 +23,7 @@ export default function PartnerMarquee() {
         <section className="py-8 md:py-12 overflow-hidden">
             <div className="max-w-7xl mx-auto px-6 mb-6 md:mb-8">
                 <p className="text-center text-xs md:text-sm text-slate-500 uppercase tracking-widest">
-                    Partnered with Leading European Universities
+                    Working with Leading European Universities
                 </p>
             </div>
 
