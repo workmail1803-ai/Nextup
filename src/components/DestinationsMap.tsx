@@ -225,8 +225,8 @@ export default function DestinationsMap() {
                         {/* Legend - responsive */}
                         <div className="absolute bottom-2 md:bottom-4 left-2 md:left-4 glass rounded-lg px-2 md:px-3 py-1 md:py-2 text-[10px] md:text-xs text-slate-400">
                             <span className="inline-block w-2 h-2 md:w-3 md:h-3 bg-amber-500 rounded mr-1 md:mr-2"></span>
-                            <span className="hidden sm:inline">Partner Countries (Click to explore)</span>
-                            <span className="sm:hidden">Tap to explore</span>
+                            <span className="hidden sm:inline">Click to Explore</span>
+                            <span className="sm:hidden">Tap to Explore</span>
                         </div>
                     </div>
 
