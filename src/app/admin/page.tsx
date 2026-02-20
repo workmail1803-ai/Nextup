@@ -474,8 +474,13 @@ export default function AdminPage() {
                                                 rows={5}
                                                 value={currentPackage.features?.join('\n') || ""}
                                                 onChange={e => handleArrayInput('features', e.target.value)}
+                                                onKeyDown={e => {
+                                                    if (e.key === 'Enter') {
+                                                        e.stopPropagation();
+                                                    }
+                                                }}
                                                 className="w-full bg-slate-800/80 rounded-xl px-4 py-3 text-white border border-slate-700 focus:border-amber-500 transition-colors"
-                                                placeholder="Feature 1&#10;Feature 2&#10;Feature 3"
+                                                placeholder={"Feature 1\nFeature 2\nFeature 3"}
                                             />
                                         </div>
                                         <div>
