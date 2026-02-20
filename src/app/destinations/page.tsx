@@ -133,6 +133,8 @@ function DestinationsContent() {
                             { icon: "🌐", title: "Global Recognition", desc: "Degrees recognized worldwide" },
                             { icon: "💼", title: "Work Opportunities", desc: "Post-study work permits available" },
                             { icon: "🎭", title: "Cultural Experience", desc: "Rich history and diverse cultures" },
+                            { icon: "🛡️", title: "100% Transparency", desc: "All the payment will be done by you and you will have your email access" },
+                            { icon: "💎", title: "No Hidden Charges", desc: "Full transparency on costs. No surprise fees." },
                         ].map((item, index) => (
                             <motion.div
                                 key={item.title}
