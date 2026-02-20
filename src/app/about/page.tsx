@@ -124,6 +124,8 @@ function AboutContent() {
                             { icon: "📋", title: "Proven Process", desc: "Structured methodology ensuring nothing is missed" },
                             { icon: "💯", title: "High Success", desc: "Industry-leading visa approval rates" },
                             { icon: "🤝", title: "Ongoing Support", desc: "Complete pre & post-departure assistance" },
+                            { icon: "🛡️", title: "100% Transparency", desc: "All the payment will be done by you and you will have your email access" },
+                            { icon: "💎", title: "No Hidden Charges", desc: "Full transparency on costs. No surprise fees." },
                         ].map((item, index) => (
                             <motion.div
                                 key={item.title}
