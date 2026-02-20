@@ -169,7 +169,7 @@ export default function AdminPage() {
                     subtitle: currentPackage.subtitle,
                     icon: currentPackage.icon || "📚",
                     price: currentPackage.price,
-                    features: currentPackage.features || [],
+                    features: (currentPackage.features || []).filter(f => f.trim() !== ''),
                     images: currentPackage.images || [],
                     is_popular: currentPackage.is_popular || false,
                 });
@@ -181,7 +181,7 @@ export default function AdminPage() {
                     subtitle: currentPackage.subtitle || null,
                     icon: currentPackage.icon || "📚",
                     price: currentPackage.price!,
-                    features: currentPackage.features || [],
+                    features: (currentPackage.features || []).filter(f => f.trim() !== ''),
                     images: currentPackage.images || [],
                     is_popular: currentPackage.is_popular || false,
                     is_active: true,
@@ -213,7 +213,7 @@ export default function AdminPage() {
     const handleArrayInput = (field: 'features' | 'images', value: string) => {
         setCurrentPackage(prev => ({
             ...prev,
-            [field]: value.split('\n').filter(line => line.trim() !== '')
+            [field]: value.split('\n')
         }));
     };
 
