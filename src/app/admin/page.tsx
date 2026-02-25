@@ -41,7 +41,7 @@ export default function AdminPage() {
                     <h1 className="text-2xl font-bold text-white mb-6">Admin Access</h1>
                     <form onSubmit={(e) => {
                         e.preventDefault();
-                        if (password === "admin123") {
+                        if (password === "Fahim01883@") {
                             setIsAuthenticated(true);
                         } else {
                             alert("Incorrect password");
