@@ -1,124 +1,239 @@
 "use client";
 
-import { motion } from "framer-motion";
-import Link from "next/link";
+import { useEffect, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import { Check, Plane, ArrowRight, Star } from "lucide-react";
+import Button from "@/components/ui/Button";
+import { BorderBeam } from "@/components/magicui/border-beam";
 
-// Animated particle component - academic themed
-const Particle = ({ delay, size, left, top }: { delay: number; size: number; left: string; top: string }) => (
-    <motion.div
-        className="absolute rounded-full bg-gradient-to-r from-amber-500/20 to-amber-600/20 particle"
-        style={{ width: size, height: size, left, top }}
-        initial={{ opacity: 0, scale: 0 }}
-        animate={{ opacity: [0, 1, 0], scale: [0.5, 1, 0.5] }}
-        transition={{
-            duration: 4,
-            delay,
-            repeat: Infinity,
-            ease: "easeInOut",
-        }}
-    />
-);
+const stages = [
+  { n: "01", label: "Discovery call", sub: "Understand your goals & budget" },
+  { n: "02", label: "University match", sub: "Shortlist programs that fit" },
+  { n: "03", label: "Offer letter", sub: "Applications, SOPs, documents" },
+  { n: "04", label: "Visa approval", sub: "Financials & embassy prep" },
+  { n: "05", label: "Departure", sub: "Pre-arrival & settling in" },
+];
+
+function JourneyCard() {
+  const reduce = useReducedMotion();
+  const [active, setActive] = useState(reduce ? stages.length - 1 : 0);
+
+  useEffect(() => {
+    if (reduce) return;
+    const id = setInterval(
+      () => setActive((i) => (i + 1) % (stages.length + 1)),
+      1700
+    );
+    return () => clearInterval(id);
+  }, [reduce]);
+
+  return (
+    <div className="relative">
+      {/* Floating proof chips */}
+      <motion.div
+        initial={{ opacity: 0, y: 12, x: 12 }}
+        animate={{ opacity: 1, y: 0, x: 0 }}
+        transition={{ delay: 0.5, duration: 0.6 }}
+        className="absolute -right-3 top-8 z-20 hidden rounded-2xl border border-line bg-surface px-4 py-3 shadow-[var(--shadow-md)] sm:block"
+      >
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#eaf3ed] text-positive">
+            <Check className="h-4 w-4" strokeWidth={3} />
+          </span>
+          <div className="leading-tight">
+            <p className="text-sm font-semibold text-ink">Visa approved</p>
+            <p className="text-xs text-faint">Lithuania · 2025</p>
+          </div>
+        </div>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: -12, x: -12 }}
+        animate={{ opacity: 1, y: 0, x: 0 }}
+        transition={{ delay: 0.7, duration: 0.6 }}
+        className="absolute -left-4 bottom-24 z-20 hidden rounded-2xl border border-line bg-surface px-4 py-3 shadow-[var(--shadow-md)] md:block"
+      >
+        <p className="text-xs font-medium text-faint">Offer letter secured</p>
+        <p className="font-display text-sm font-semibold text-ink">Sapienza, Rome</p>
+      </motion.div>
+
+      {/* The card */}
+      <motion.div
+        initial={{ opacity: 0, y: 24, rotate: reduce ? 0 : -1.5 }}
+        animate={{ opacity: 1, y: 0, rotate: reduce ? 0 : -1.5 }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        className="card grain relative overflow-hidden p-6 md:p-8"
+      >
+        <BorderBeam duration={9} size={70} borderWidth={1.5} />
+        <div className="flex items-center justify-between">
+          <p className="eyebrow">The NextUp Journey</p>
+          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-positive">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-positive opacity-60" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-positive" />
+            </span>
+            In progress
+          </span>
+        </div>
+
+        <ol className="relative mt-6 space-y-1">
+          <span className="absolute left-[18px] top-3 bottom-3 w-px bg-line" aria-hidden />
+          {stages.map((s, i) => {
+            const done = i < active;
+            const current = i === active;
+            return (
+              <li key={s.n} className="relative flex items-start gap-4 rounded-xl px-1.5 py-2.5">
+                {current && (
+                  <motion.span
+                    layoutId="journey-active"
+                    className="absolute inset-0 -z-0 rounded-xl bg-accent-soft"
+                    transition={{ type: "spring", stiffness: 320, damping: 30 }}
+                  />
+                )}
+                <span
+                  className={`relative z-10 flex h-9 w-9 flex-none items-center justify-center rounded-full border text-xs font-semibold transition-colors duration-300 ${
+                    done
+                      ? "border-positive bg-positive text-white"
+                      : current
+                        ? "border-accent bg-accent text-white"
+                        : "border-line bg-surface text-faint"
+                  }`}
+                >
+                  {done ? <Check className="h-4 w-4" strokeWidth={3} /> : s.n}
+                </span>
+                <div className="relative z-10 pt-1">
+                  <p className={`text-[0.95rem] font-semibold leading-tight ${current || done ? "text-ink" : "text-muted"}`}>
+                    {s.label}
+                  </p>
+                  <p className="mt-0.5 text-xs text-faint">{s.sub}</p>
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+
+        {/* Boarding-pass footer */}
+        <div className="mt-6 flex items-center justify-between rounded-xl border border-dashed border-line-strong bg-paper-2 px-4 py-3">
+          <div className="text-center">
+            <p className="font-display text-lg font-semibold text-ink">DAC</p>
+            <p className="text-[10px] uppercase tracking-wider text-faint">Dhaka</p>
+          </div>
+          <div className="flex flex-1 items-center px-3 text-faint">
+            <span className="h-px flex-1 bg-line-strong" />
+            <Plane className="mx-2 h-4 w-4 text-accent" />
+            <span className="h-px flex-1 bg-line-strong" />
+          </div>
+          <div className="text-center">
+            <p className="font-display text-lg font-semibold text-ink">EU</p>
+            <p className="text-[10px] uppercase tracking-wider text-faint">Intake 2026</p>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
 
 export default function Hero() {
-    return (
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden animated-gradient-bg">
-            {/* Animated Particles */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <Particle delay={0} size={100} left="10%" top="20%" />
-                <Particle delay={1} size={60} left="80%" top="15%" />
-                <Particle delay={2} size={80} left="70%" top="60%" />
-                <Particle delay={0.5} size={120} left="20%" top="70%" />
-                <Particle delay={1.5} size={50} left="50%" top="30%" />
-                <Particle delay={2.5} size={90} left="85%" top="80%" />
-                <Particle delay={3} size={70} left="5%" top="50%" />
+  return (
+    <section className="relative overflow-hidden">
+      {/* Ambient warmth — restrained, single soft source */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-40 right-[-10%] h-[640px] w-[640px] rounded-full opacity-70 blur-3xl"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(224,146,31,0.14) 0%, rgba(224,146,31,0.04) 45%, transparent 70%)",
+        }}
+      />
 
-                {/* Gradient orbs - Gold themed */}
-                <motion.div
-                    className="absolute w-96 h-96 bg-amber-500/10 rounded-full blur-3xl"
-                    style={{ left: "60%", top: "20%" }}
-                    animate={{
-                        x: [0, 50, 0],
-                        y: [0, 30, 0],
-                    }}
-                    transition={{
-                        duration: 10,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                    }}
+      <div className="container-edge grid items-center gap-14 pb-20 pt-32 md:pt-40 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10 lg:pb-28">
+        {/* Copy */}
+        <div className="max-w-xl">
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="eyebrow"
+          >
+            Study in Europe · From Bangladesh
+          </motion.p>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 22 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
+            className="display mt-5 text-ink"
+          >
+            From a dorm in Dhaka to a{" "}
+            <span className="accent-serif">lecture hall in Europe.</span>
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 22 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+            className="lede mt-6"
+          >
+            We&apos;re a student-led mentorship team who already made this exact journey. We guide
+            you from first application to boarding gate — transparently, and on your terms. You keep
+            control of every payment and login.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 22 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center"
+          >
+            <Button href="/contact" size="lg" withArrow>
+              Book a free consultation
+            </Button>
+            <Button href="/services" size="lg" variant="secondary">
+              Explore packages
+            </Button>
+          </motion.div>
+
+          {/* Trust row — placeholder figures, easy to update */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.7, delay: 0.4 }}
+            className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3"
+          >
+            <div className="flex -space-x-2">
+              {["#caa46a", "#a85a1a", "#7a8b6f", "#9c6b53", "#6f7e93"].map((c, i) => (
+                <span
+                  key={i}
+                  className="h-9 w-9 rounded-full border-2 border-paper"
+                  style={{ background: c }}
+                  aria-hidden
                 />
-                <motion.div
-                    className="absolute w-80 h-80 bg-amber-600/10 rounded-full blur-3xl"
-                    style={{ left: "10%", top: "60%" }}
-                    animate={{
-                        x: [0, -30, 0],
-                        y: [0, -40, 0],
-                    }}
-                    transition={{
-                        duration: 8,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                    }}
-                />
+              ))}
             </div>
-
-            {/* Content */}
-            <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
-                    className="mb-6"
-                >
-                    <span className="inline-block px-4 py-2 glass-card rounded-full text-sm text-amber-400 font-medium mb-8">
-                        🎓 Your Gateway to European Education
-                    </span>
-                </motion.div>
-
-                <motion.h1
-                    initial={{ opacity: 0, y: 40 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-                    className="text-4xl md:text-6xl lg:text-7xl font-bold mb-8 leading-tight"
-                >
-                    Secure Your Future in
-                    <br />
-                    <span className="text-gradient">Europe&apos;s Top Universities</span>
-                </motion.h1>
-
-                <motion.p
-                    initial={{ opacity: 0, y: 40 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-                    className="text-xl md:text-2xl text-slate-400 max-w-3xl mx-auto mb-12"
-                >
-                    Comprehensive guidance for Italy, Lithuania, and beyond.
-                    <br />
-                    From admission to visa—we are your mentors.
-                </motion.p>
-
-                <motion.div
-                    initial={{ opacity: 0, y: 40 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
-                    className="flex flex-col sm:flex-row items-center justify-center gap-4"
-                >
-                    <Link href="/services">
-                        <button
-                            className="group relative px-8 py-4 bg-gradient-to-r from-amber-500 to-amber-600 rounded-full font-semibold text-slate-900 overflow-hidden hover:scale-105 transition-transform duration-300"
-                        >
-                            <span className="relative z-10">Start Assessment</span>
-                        </button>
-                    </Link>
-
-                    <Link href="/contact">
-                        <button
-                            className="px-8 py-4 glass-card rounded-full font-semibold text-slate-300 hover:text-amber-400 hover:scale-105 transition-all duration-300"
-                        >
-                            Book Free Consultation
-                        </button>
-                    </Link>
-                </motion.div>
+            <div className="text-sm">
+              <div className="flex items-center gap-1 text-accent">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} className="h-3.5 w-3.5 fill-current" />
+                ))}
+              </div>
+              <p className="mt-0.5 text-muted">
+                <span className="font-semibold text-ink">1,200+ students</span> guided since 2022
+              </p>
             </div>
-        </section>
-    );
+          </motion.div>
+        </div>
+
+        {/* Interactive journey */}
+        <div className="relative lg:pl-6">
+          <JourneyCard />
+        </div>
+      </div>
+
+      {/* Scroll cue */}
+      <div className="container-edge -mt-6 hidden items-center gap-2 pb-8 text-xs text-faint lg:flex">
+        <ArrowRight className="h-3.5 w-3.5 rotate-90" />
+        Scroll to see how it works
+      </div>
+    </section>
+  );
 }

@@ -1,305 +1,253 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { CurrencyProvider } from "@/context/CurrencyContext";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Mail, Phone, Clock, CheckCircle2, Plus, MessageCircle } from "lucide-react";
 import { db } from "@/lib/supabase";
-import Navbar from "@/components/Navbar";
-import FloatingContact from "@/components/FloatingContact";
-import SpotlightCursor from "@/components/SpotlightCursor";
+import PageHero from "@/components/ui/PageHero";
+import Reveal from "@/components/ui/Reveal";
+import SectionHeading from "@/components/ui/SectionHeading";
+import { FacebookIcon, InstagramIcon } from "@/components/ui/BrandIcons";
 
-function ContactContent() {
+type Status = "idle" | "submitting" | "success" | "error";
+
+const faqs = [
+  { q: "How soon should I start my application?", a: "Start at least 6–8 months before your intended intake. That leaves comfortable time for documents, university applications, and visa processing without last-minute stress." },
+  { q: "Do I need to know the local language?", a: "Many European universities offer programs entirely in English, so it's not required. That said, picking up the local language will enrich your experience and widen job prospects." },
+  { q: "What are the real costs involved?", a: "Costs vary by country and university — several European countries offer free or low-cost public education. We map out every fee transparently so there are no surprises, and you pay each one directly." },
+  { q: "Can I work while studying?", a: "Yes. Most European countries let international students work part-time (typically around 20 hours/week) during their studies, which helps with living costs." },
+];
+
+const channels = [
+  { Icon: Mail, label: "Email", value: "nextupmentor@gmail.com", href: "mailto:nextupmentor@gmail.com" },
+  { Icon: Phone, label: "Phone", value: "+880 1726 867991", href: "tel:+8801726867991" },
+  { Icon: MessageCircle, label: "WhatsApp", value: "Chat with a mentor", href: "https://wa.me/8801726867991" },
+];
+
+function ContactForm() {
+  const [status, setStatus] = useState<Status>("idle");
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    setStatus("submitting");
+    try {
+      await db.messages.create({
+        name: data.get("name") as string,
+        email: data.get("email") as string,
+        phone: (data.get("phone") as string) || null,
+        destination: (data.get("destination") as string) || null,
+        message: data.get("message") as string,
+        status: "unread",
+        replied_at: null,
+      });
+      setStatus("success");
+      form.reset();
+    } catch (err) {
+      console.error("Error sending message:", err);
+      setStatus("error");
+    }
+  }
+
+  if (status === "success") {
     return (
-        <main className="min-h-screen relative">
-            {/* Spotlight Cursor Effect */}
-            <SpotlightCursor />
-
-            <Navbar />
-
-            {/* Hero Section for Contact */}
-            <section className="pt-32 pb-16 px-6 md:px-12">
-                <div className="max-w-7xl mx-auto text-center">
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6 }}
-                    >
-                        <span className="inline-block px-4 py-2 glass-card rounded-full text-sm text-amber-400 font-medium mb-6">
-                            💬 Get In Touch
-                        </span>
-                        <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-                            Start Your <span className="text-gradient">Journey Today</span>
-                        </h1>
-                        <p className="text-xl text-slate-400 max-w-2xl mx-auto">
-                            Book a free consultation and let&apos;s discuss your European education goals.
-                            Our experienced mentors are here to guide you every step of the way.
-                        </p>
-                    </motion.div>
-                </div>
-            </section>
-
-            {/* Contact Form & Info Section */}
-            <section className="py-16 px-6">
-                <div className="max-w-6xl mx-auto">
-                    <div className="grid lg:grid-cols-2 gap-12">
-                        {/* Contact Form */}
-                        <motion.div
-                            initial={{ opacity: 0, x: -30 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.6 }}
-                        >
-                            <form
-                                className="glass-card rounded-2xl p-8 space-y-6 glow-gold"
-                                onSubmit={async (e) => {
-                                    e.preventDefault();
-                                    const form = e.currentTarget;
-                                    const formData = new FormData(form);
-                                    try {
-                                        await db.messages.create({
-                                            name: formData.get("name") as string,
-                                            email: formData.get("email") as string,
-                                            phone: (formData.get("phone") as string) || null,
-                                            destination: (formData.get("destination") as string) || null,
-                                            message: formData.get("message") as string,
-                                            status: "unread",
-                                            replied_at: null,
-                                        });
-                                        alert("Message sent successfully! We'll contact you soon.");
-                                        form.reset();
-                                    } catch (error) {
-                                        console.error("Error sending message:", error);
-                                        alert("Failed to send message. Please try again.");
-                                    }
-                                }}
-                            >
-                                <h2 className="text-2xl font-bold text-white mb-4">Send Us a Message</h2>
-                                <div className="grid md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label className="block text-sm text-slate-400 mb-2">Full Name</label>
-                                        <input
-                                            type="text"
-                                            name="name"
-                                            placeholder="Your name"
-                                            required
-                                            className="w-full bg-slate-800/80 rounded-xl px-4 py-3 text-white placeholder-slate-500 border border-slate-700 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500 transition-colors"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm text-slate-400 mb-2">Email</label>
-                                        <input
-                                            type="email"
-                                            name="email"
-                                            placeholder="your@email.com"
-                                            required
-                                            className="w-full bg-slate-800/80 rounded-xl px-4 py-3 text-white placeholder-slate-500 border border-slate-700 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500 transition-colors"
-                                        />
-                                    </div>
-                                </div>
-                                <div className="grid md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label className="block text-sm text-slate-400 mb-2">Phone Number</label>
-                                        <input
-                                            type="tel"
-                                            name="phone"
-                                            placeholder="+880 1XXX-XXXXXX"
-                                            className="w-full bg-slate-800/80 rounded-xl px-4 py-3 text-white placeholder-slate-500 border border-slate-700 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500 transition-colors"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm text-slate-400 mb-2">Preferred Destination</label>
-                                        <select
-                                            name="destination"
-                                            className="w-full bg-slate-800/80 rounded-xl px-4 py-3 text-white border border-slate-700 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500 transition-colors"
-                                        >
-                                            <option value="">Select a country</option>
-                                            <option value="Italy">Italy</option>
-                                            <option value="Lithuania">Lithuania</option>
-                                            <option value="Germany">Germany</option>
-                                            <option value="Poland">Poland</option>
-                                            <option value="Hungary">Hungary</option>
-                                            <option value="Other">Other</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label className="block text-sm text-slate-400 mb-2">Your Message</label>
-                                    <textarea
-                                        rows={4}
-                                        name="message"
-                                        placeholder="Tell us about your academic background and goals..."
-                                        required
-                                        className="w-full bg-slate-800/80 rounded-xl px-4 py-3 text-white placeholder-slate-500 border border-slate-700 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500 transition-colors resize-none"
-                                    />
-                                </div>
-                                <button
-                                    type="submit"
-                                    className="w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl font-semibold text-slate-900 hover:scale-102 transition-transform duration-200"
-                                >
-                                    Request Free Consultation
-                                </button>
-                            </form>
-                        </motion.div>
-
-                        {/* Contact Information */}
-                        <motion.div
-                            initial={{ opacity: 0, x: 30 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.6 }}
-                            className="space-y-8"
-                        >
-                            <div>
-                                <h2 className="text-2xl font-bold text-white mb-6">Contact Information</h2>
-                                <p className="text-slate-400 mb-8">
-                                    We&apos;re here to answer any questions you might have. Get in touch with us through
-                                    any of the following channels.
-                                </p>
-                            </div>
-
-                            <div className="space-y-6">
-                                {[
-                                    {
-                                        icon: "",
-                                        title: "Email Us",
-                                        details: ["nextupmentor@gmail.com"],
-                                    },
-                                    {
-                                        icon: "📞",
-                                        title: "Call Us",
-                                        details: ["+8801726867991", "Available 10 AM - 8 PM (BST)"],
-                                    },
-                                    {
-                                        icon: "🌐",
-                                        title: "Follow Us",
-                                        details: [] as string[],
-                                        links: [
-                                            { label: "Facebook: @NextUpMentor", url: "https://www.facebook.com/profile.php?id=61585820771768" },
-                                            { label: "Instagram: @nextup_mentor", url: "https://www.instagram.com/nextup_mentor?igsh=MTNyZmprYjYwYjRtNw==" },
-                                        ],
-                                    },
-                                ].map((item, index) => (
-                                    <motion.div
-                                        key={item.title}
-                                        className="glass-card rounded-xl p-5 flex gap-4 hover:scale-102 hover:translate-x-1 transition-transform duration-200"
-                                        initial={{ opacity: 0, y: 20 }}
-                                        whileInView={{ opacity: 1, y: 0 }}
-                                        viewport={{ once: true }}
-                                        transition={{ duration: 0.4, delay: index * 0.1 }}
-                                    >
-                                        <div className="text-3xl">{item.icon}</div>
-                                        <div>
-                                            <h3 className="font-semibold text-white mb-1">{item.title}</h3>
-                                            {item.details.map((detail) => (
-                                                <p key={detail} className="text-sm text-slate-400">
-                                                    {detail}
-                                                </p>
-                                            ))}
-                                            {"links" in item && item.links?.map((link) => (
-                                                <a
-                                                    key={link.url}
-                                                    href={link.url}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="block text-sm text-amber-400 hover:text-amber-300 hover:underline transition-colors"
-                                                >
-                                                    {link.label}
-                                                </a>
-                                            ))}
-                                        </div>
-                                    </motion.div>
-                                ))}
-                            </div>
-
-                            {/* Office Hours */}
-                            <motion.div
-                                className="glass-card rounded-xl p-6 mt-8"
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.5, delay: 0.4 }}
-                            >
-                                <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
-                                    <span className="text-xl">🕐</span> Office Hours
-                                </h3>
-                                <div className="space-y-2 text-sm">
-                                    <div className="flex justify-between text-slate-400">
-                                        <span>Saturday - Thursday</span>
-                                        <span className="text-amber-400">10:00 AM - 8:00 PM</span>
-                                    </div>
-                                    <div className="flex justify-between text-slate-400">
-                                        <span>Friday</span>
-                                        <span className="text-slate-500">Closed</span>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        </motion.div>
-                    </div>
-                </div>
-            </section>
-
-            {/* FAQ Section */}
-            <section className="py-24 px-6 bg-slate-900/30">
-                <div className="max-w-4xl mx-auto">
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6 }}
-                        className="text-center mb-12"
-                    >
-                        <span className="inline-block px-4 py-2 glass-card rounded-full text-sm text-amber-400 font-medium mb-6">
-                            ❓ FAQ
-                        </span>
-                        <h2 className="text-3xl md:text-4xl font-bold text-white">
-                            Frequently Asked <span className="text-gradient">Questions</span>
-                        </h2>
-                    </motion.div>
-
-                    <div className="space-y-4">
-                        {[
-                            {
-                                q: "How soon should I start my application?",
-                                a: "We recommend starting at least 6-8 months before your intended intake. This gives ample time for document preparation, university applications, and visa processing.",
-                            },
-                            {
-                                q: "Do I need to know the local language?",
-                                a: "Many European universities offer programs entirely in English. However, learning the local language can enhance your experience and job prospects.",
-                            },
-                            {
-                                q: "What are the costs involved?",
-                                a: "Costs vary by country and university. Many European countries offer free or low-cost education. We'll help you find options that fit your budget.",
-                            },
-                            {
-                                q: "Can I work while studying?",
-                                a: "Yes! Most European countries allow international students to work part-time (typically 20 hours/week) during their studies.",
-                            },
-                        ].map((faq, index) => (
-                            <motion.div
-                                key={index}
-                                className="glass-card rounded-xl p-6"
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.4, delay: index * 0.1 }}
-                            >
-                                <h3 className="font-semibold text-white mb-2">{faq.q}</h3>
-                                <p className="text-slate-400 text-sm">{faq.a}</p>
-                            </motion.div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* Floating Contact Buttons */}
-            <FloatingContact />
-        </main>
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="card flex flex-col items-center justify-center p-10 text-center"
+      >
+        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#eaf3ed] text-positive">
+          <CheckCircle2 className="h-7 w-7" />
+        </span>
+        <h3 className="h3 mt-5 text-ink">Message received</h3>
+        <p className="mt-2 max-w-sm text-muted">
+          Thank you — a mentor will reach out within one working day. For anything urgent, message us
+          on WhatsApp.
+        </p>
+        <button
+          onClick={() => setStatus("idle")}
+          className="mt-6 text-sm font-semibold text-accent hover:underline"
+        >
+          Send another message
+        </button>
+      </motion.div>
     );
+  }
+
+  const inputCls =
+    "w-full rounded-xl border border-line bg-surface px-4 py-3 text-ink placeholder-faint transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20";
+
+  return (
+    <form onSubmit={handleSubmit} className="card p-6 md:p-8">
+      <h2 className="font-display text-2xl font-semibold text-ink">Send us a message</h2>
+      <p className="mt-1 text-sm text-muted">Tell us where you are in your journey.</p>
+
+      <div className="mt-6 grid gap-4 md:grid-cols-2">
+        <Field label="Full name">
+          <input name="name" required placeholder="Your name" className={inputCls} />
+        </Field>
+        <Field label="Email">
+          <input type="email" name="email" required placeholder="you@email.com" className={inputCls} />
+        </Field>
+      </div>
+      <div className="mt-4 grid gap-4 md:grid-cols-2">
+        <Field label="Phone (optional)">
+          <input type="tel" name="phone" placeholder="+880 1XXX-XXXXXX" className={inputCls} />
+        </Field>
+        <Field label="Preferred destination">
+          <select name="destination" className={inputCls} defaultValue="">
+            <option value="">Select a country</option>
+            <option>Italy</option>
+            <option>Germany</option>
+            <option>Lithuania</option>
+            <option>Poland</option>
+            <option>Hungary</option>
+            <option>Other</option>
+          </select>
+        </Field>
+      </div>
+      <div className="mt-4">
+        <Field label="Your message">
+          <textarea
+            name="message"
+            rows={4}
+            required
+            placeholder="Tell us about your academic background and goals…"
+            className={`${inputCls} resize-none`}
+          />
+        </Field>
+      </div>
+
+      {status === "error" && (
+        <p className="mt-4 rounded-lg bg-[#fbeceb] px-4 py-3 text-sm text-danger">
+          Something went wrong sending your message. Please try again, or reach us on WhatsApp.
+        </p>
+      )}
+
+      <button
+        type="submit"
+        disabled={status === "submitting"}
+        className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-ink py-4 font-semibold text-on-ink transition-[transform,background-color] hover:bg-[#2a241c] active:scale-[0.99] disabled:opacity-60"
+      >
+        {status === "submitting" ? "Sending…" : "Request free consultation"}
+      </button>
+    </form>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label className="block">
+      <span className="mb-1.5 block text-sm font-medium text-muted">{label}</span>
+      {children}
+    </label>
+  );
+}
+
+function FaqItem({ q, a }: { q: string; a: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="border-b border-line">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="flex w-full items-center justify-between gap-4 py-5 text-left"
+      >
+        <span className="font-display text-lg font-medium text-ink">{q}</span>
+        <Plus
+          className={`h-5 w-5 flex-none text-accent transition-transform duration-300 ${open ? "rotate-45" : ""}`}
+        />
+      </button>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="overflow-hidden"
+          >
+            <p className="pb-5 pr-10 leading-relaxed text-muted">{a}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 }
 
 export default function ContactPage() {
-    return (
-        <CurrencyProvider>
-            <ContactContent />
-        </CurrencyProvider>
-    );
+  return (
+    <>
+      <PageHero
+        eyebrow="Get in touch"
+        title={
+          <>
+            Your journey begins with <span className="accent-serif">a conversation.</span>
+          </>
+        }
+        lede="Book a free consultation and let's talk through your European education goals. No pressure, no obligation — just honest guidance from people who've done it."
+      />
+
+      <section className="bg-paper pb-20 md:pb-28">
+        <div className="container-edge grid gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:gap-14">
+          <Reveal>
+            <ContactForm />
+          </Reveal>
+
+          <Reveal delay={0.1} className="flex flex-col gap-4">
+            <div className="card p-6">
+              <h3 className="font-display text-lg font-semibold text-ink">Talk to us directly</h3>
+              <ul className="mt-5 space-y-4">
+                {channels.map((c) => (
+                  <li key={c.label}>
+                    <a href={c.href} target={c.href.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer" className="group flex items-center gap-3.5">
+                      <span className="inline-flex h-11 w-11 flex-none items-center justify-center rounded-xl bg-accent-soft text-accent">
+                        <c.Icon className="h-5 w-5" strokeWidth={1.75} />
+                      </span>
+                      <span>
+                        <span className="block text-xs uppercase tracking-wider text-faint">{c.label}</span>
+                        <span className="block font-medium text-ink transition-colors group-hover:text-accent">{c.value}</span>
+                      </span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-6 flex gap-2 border-t border-line pt-5">
+                <a href="https://www.facebook.com/profile.php?id=61585820771768" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-line text-muted transition-colors hover:border-accent hover:text-accent">
+                  <FacebookIcon className="h-[18px] w-[18px]" />
+                </a>
+                <a href="https://www.instagram.com/nextup_mentor" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-line text-muted transition-colors hover:border-accent hover:text-accent">
+                  <InstagramIcon className="h-[18px] w-[18px]" />
+                </a>
+              </div>
+            </div>
+
+            <div className="card flex items-start gap-3.5 p-6">
+              <span className="inline-flex h-11 w-11 flex-none items-center justify-center rounded-xl bg-accent-soft text-accent">
+                <Clock className="h-5 w-5" strokeWidth={1.75} />
+              </span>
+              <div className="text-sm">
+                <p className="font-semibold text-ink">Office hours</p>
+                <p className="mt-1 text-muted">Sat – Thu · 10:00 AM – 8:00 PM (BST)</p>
+                <p className="text-faint">Friday · Closed</p>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="bg-paper-2 py-20 md:py-28">
+        <div className="container-edge max-w-3xl">
+          <SectionHeading align="center" eyebrow="FAQ" title="Questions, answered honestly" />
+          <div className="mt-12">
+            {faqs.map((f) => (
+              <FaqItem key={f.q} q={f.q} a={f.a} />
+            ))}
+          </div>
+        </div>
+      </section>
+    </>
+  );
 }

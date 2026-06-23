@@ -1,189 +1,142 @@
-"use client";
-
-import { motion } from "framer-motion";
-import { CurrencyProvider } from "@/context/CurrencyContext";
-import Navbar from "@/components/Navbar";
+import { ImageIcon } from "lucide-react";
+import PageHero from "@/components/ui/PageHero";
+import Reveal from "@/components/ui/Reveal";
+import SectionHeading from "@/components/ui/SectionHeading";
 import DestinationsMap from "@/components/DestinationsMap";
-import FloatingContact from "@/components/FloatingContact";
-import SpotlightCursor from "@/components/SpotlightCursor";
+import ConnectBeam from "@/components/sections/ConnectBeam";
 import PartnerMarquee from "@/components/PartnerMarquee";
 
-function AboutContent() {
-    return (
-        <main className="min-h-screen relative">
-            {/* Spotlight Cursor Effect */}
-            <SpotlightCursor />
-
-            <Navbar />
-
-            {/* Hero Section for About */}
-            <section className="pt-32 pb-16 px-6 md:px-12">
-                <div className="max-w-7xl mx-auto">
-                    <div className="grid lg:grid-cols-[1fr_2fr_1fr] gap-6 items-center">
-                        {/* Left Side Cards */}
-                        <motion.div
-                            initial={{ opacity: 0, x: -40 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.6, delay: 0.3 }}
-                            className="hidden lg:flex flex-col gap-4"
-                        >
-                            {[
-                                { icon: "🎓", title: "Expert Mentors", desc: "European alumni guides with firsthand experience" },
-                                { icon: "📋", title: "Proven Process", desc: "Structured methodology ensuring nothing is missed" },
-                                { icon: "🛡️", title: "100% Transparency", desc: "All the payment will be done by you and you will have your email access" },
-                            ].map((item, index) => (
-                                <motion.div
-                                    key={item.title}
-                                    className="glass-card rounded-2xl p-5 text-center hover:scale-105 transition-transform duration-300"
-                                    initial={{ opacity: 0, x: -30 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ duration: 0.4, delay: 0.4 + index * 0.15 }}
-                                >
-                                    <div className="text-3xl mb-2">{item.icon}</div>
-                                    <h3 className="text-base font-semibold text-white mb-1">{item.title}</h3>
-                                    <p className="text-xs text-slate-400">{item.desc}</p>
-                                </motion.div>
-                            ))}
-                        </motion.div>
-
-                        {/* Center Hero Text */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 30 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.6 }}
-                            className="text-center"
-                        >
-                            <span className="inline-block px-4 py-2 glass-card rounded-full text-sm text-amber-400 font-medium mb-6">
-                                🎯 About Us
-                            </span>
-                            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-                                Your <span className="text-gradient">Trusted Partner</span> for European Education
-                            </h1>
-                            <p className="text-xl text-slate-400 max-w-3xl mx-auto">
-                                NextUp Mentor is a premium study abroad consultancy in Bangladesh specializing in
-                                European destinations. We provide structured, transparent, and student-focused
-                                guidance from university application to visa processing and beyond.
-                            </p>
-                        </motion.div>
-
-                        {/* Right Side Cards */}
-                        <motion.div
-                            initial={{ opacity: 0, x: 40 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.6, delay: 0.3 }}
-                            className="hidden lg:flex flex-col gap-4"
-                        >
-                            {[
-                                { icon: "💯", title: "High Success", desc: "Industry-leading visa approval rates" },
-                                { icon: "🤝", title: "Ongoing Support", desc: "Complete pre & post-departure assistance" },
-                                { icon: "💎", title: "No Hidden Charges", desc: "Full transparency on costs. No surprise fees." },
-                            ].map((item, index) => (
-                                <motion.div
-                                    key={item.title}
-                                    className="glass-card rounded-2xl p-5 text-center hover:scale-105 transition-transform duration-300"
-                                    initial={{ opacity: 0, x: 30 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ duration: 0.4, delay: 0.4 + index * 0.15 }}
-                                >
-                                    <div className="text-3xl mb-2">{item.icon}</div>
-                                    <h3 className="text-base font-semibold text-white mb-1">{item.title}</h3>
-                                    <p className="text-xs text-slate-400">{item.desc}</p>
-                                </motion.div>
-                            ))}
-                        </motion.div>
-                    </div>
-
-                    {/* Mobile: Show cards in a grid below hero text */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.3 }}
-                        className="grid grid-cols-2 gap-4 mt-10 lg:hidden"
-                    >
-                        {[
-                            { icon: "🎓", title: "Expert Mentors", desc: "European alumni guides with firsthand experience" },
-                            { icon: "📋", title: "Proven Process", desc: "Structured methodology ensuring nothing is missed" },
-                            { icon: "💯", title: "High Success", desc: "Industry-leading visa approval rates" },
-                            { icon: "🤝", title: "Ongoing Support", desc: "Complete pre & post-departure assistance" },
-                            { icon: "🛡️", title: "100% Transparency", desc: "All the payment will be done by you and you will have your email access" },
-                            { icon: "💎", title: "No Hidden Charges", desc: "Full transparency on costs. No surprise fees." },
-                        ].map((item) => (
-                            <div key={item.title} className="glass-card rounded-2xl p-4 text-center">
-                                <div className="text-2xl mb-2">{item.icon}</div>
-                                <h3 className="text-sm font-semibold text-white mb-1">{item.title}</h3>
-                                <p className="text-xs text-slate-400">{item.desc}</p>
-                            </div>
-                        ))}
-                    </motion.div>
-                </div>
-            </section>
-
-            {/* Our Story Section */}
-            <section className="py-24 px-6 relative overflow-hidden">
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
-
-                <div className="max-w-7xl mx-auto relative z-10">
-                    <div className="max-w-4xl mx-auto">
-                        <motion.div
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.6 }}
-                            className="text-center"
-                        >
-                            <h2 className="text-3xl md:text-5xl font-bold text-white mb-8">
-                                Our <span className="text-gradient">Story</span>
-                            </h2>
-                            <p className="text-lg md:text-xl text-slate-400 mb-8 leading-relaxed">
-                                NextUp Mentor was founded by current and former students who are already living
-                                and studying across Europe. We started this mentorship firm not as a traditional
-                                agency, but as students who have personally experienced the challenges, confusion,
-                                and struggles of moving abroad.
-                            </p>
-                            <p className="text-lg md:text-xl text-slate-400 mb-8 leading-relaxed">
-                                We have gone through the same visa processes, documentation pressure, financial
-                                concerns, cultural adjustments, and academic transitions that upcoming students are
-                                preparing to face. Because we lived it ourselves, we understand exactly what guidance
-                                a student truly needs — and what they don’t.
-                            </p>
-                            <p className="text-lg md:text-xl text-slate-400 mb-8 leading-relaxed">
-                                Instead of following the typical agency formula, we believe in complete transparency
-                                and student control. There are no hidden charges, no unclear procedures, and no
-                                restricted access. Students maintain full access to their applications and make
-                                payments directly themselves. Our role is to guide, support, and ensure every step
-                                is taken correctly and confidently.
-                            </p>
-                            <div className="my-12 p-8 glass-card rounded-2xl border-l-4 border-amber-500 bg-amber-500/5">
-                                <p className="text-xl md:text-2xl text-slate-200 italic font-medium">
-                                    "To guide students toward the life we are already living — with honesty, clarity,
-                                    and real experience behind every piece of advice."
-                                </p>
-                            </div>
-                            <p className="text-xl md:text-2xl text-white font-bold tracking-tight">
-                                We don’t just assist with applications. <br className="hidden md:block" />
-                                We mentor, support, and walk beside you — because we are students first, and mentors by experience.
-                            </p>
-                        </motion.div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Interactive Destinations Map */}
-            <DestinationsMap />
-
-            {/* Partner Universities Marquee */}
-            <PartnerMarquee />
-
-            {/* Floating Contact Buttons */}
-            <FloatingContact />
-        </main>
-    );
-}
+const principles = [
+  {
+    n: "01",
+    title: "Lived experience over scripts",
+    body: "Everyone who guides you has personally applied, won a visa, and now studies in Europe. Advice comes from memory, not a manual.",
+  },
+  {
+    n: "02",
+    title: "Radical transparency",
+    body: "No hidden charges. You see every cost, make every payment yourself, and keep access to every account and email.",
+  },
+  {
+    n: "03",
+    title: "You stay in control",
+    body: "We guide the process; you own it. Your applications and logins are always yours — never locked behind an agency.",
+  },
+  {
+    n: "04",
+    title: "We don't disappear at departure",
+    body: "Housing, banking, residence permits, community — our support continues long after the plane lands.",
+  },
+];
 
 export default function AboutPage() {
-    return (
-        <CurrencyProvider>
-            <AboutContent />
-        </CurrencyProvider>
-    );
+  return (
+    <>
+      <PageHero
+        eyebrow="About NextUp Mentor"
+        title={
+          <>
+            We were the ones lost in this process.{" "}
+            <span className="accent-serif">So we built the guide we wished we&apos;d had.</span>
+          </>
+        }
+        lede="NextUp Mentor is a student-led study-abroad consultancy in Bangladesh, focused on European destinations — built on honesty, transparency, and real experience."
+      />
+
+      {/* Our story */}
+      <section className="bg-paper py-16 md:py-24">
+        <div className="container-edge grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
+          <Reveal>
+            <span className="eyebrow">Our story</span>
+            <h2 className="h2 mt-4 text-balance text-ink">
+              Founded by students, <span className="accent-serif">not salespeople.</span>
+            </h2>
+          </Reveal>
+
+          <div className="max-w-2xl space-y-5 text-[1.05rem] leading-relaxed text-muted">
+            <Reveal>
+              <p>
+                NextUp Mentor was founded by current and former students already living and studying
+                across Europe. We started this not as a traditional agency, but as people who
+                personally experienced the challenges, confusion, and struggles of moving abroad.
+              </p>
+            </Reveal>
+            <Reveal delay={0.06}>
+              <p>
+                We have gone through the same visa processes, documentation pressure, financial
+                concerns, cultural adjustments, and academic transitions that upcoming students are
+                about to face. Because we lived it ourselves, we understand exactly what guidance a
+                student truly needs — and what they don&apos;t.
+              </p>
+            </Reveal>
+            <Reveal delay={0.12}>
+              <p>
+                Instead of the typical agency formula, we believe in complete transparency and
+                student control. No hidden charges, no unclear procedures, no restricted access.
+                Students keep full access to their applications and make payments directly
+                themselves. Our role is to guide, support, and make sure every step is taken
+                correctly and confidently.
+              </p>
+            </Reveal>
+          </div>
+        </div>
+
+        {/* Manifesto pull-quote */}
+        <div className="container-edge mt-16">
+          <Reveal>
+            <blockquote className="mx-auto max-w-4xl border-l-2 border-accent pl-6 md:pl-10">
+              <p className="font-display text-2xl font-medium italic leading-snug text-ink md:text-[2rem]">
+                “To guide students toward the life we are already living — with honesty, clarity, and
+                real experience behind every piece of advice.”
+              </p>
+            </blockquote>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* Team photo placeholder */}
+      <section className="bg-paper-2 py-16 md:py-24">
+        <div className="container-edge">
+          <Reveal y={28}>
+            <div className="relative aspect-[21/9] overflow-hidden rounded-2xl border border-line bg-gradient-to-br from-[#efe7d9] to-[#e3d8c4] shadow-[var(--shadow-md)]">
+              <div className="flex h-full flex-col items-center justify-center text-center text-accent-ink/50">
+                <ImageIcon className="h-10 w-10" strokeWidth={1.5} />
+                <p className="mt-3 px-8 text-sm font-medium">
+                  Team photo — the NextUp founders on campus across Europe
+                </p>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* Principles */}
+      <section className="bg-paper py-20 md:py-28">
+        <div className="container-edge">
+          <SectionHeading
+            eyebrow="What we stand for"
+            title="Four principles we won't bend"
+            lede="They're the reason students — and their families — trust us with one of the biggest decisions of their lives."
+          />
+          <div className="mt-14 grid gap-x-12 gap-y-10 md:grid-cols-2">
+            {principles.map((p, i) => (
+              <Reveal key={p.n} delay={(i % 2) * 0.08}>
+                <div className="flex gap-5 border-t border-line pt-6">
+                  <span className="font-display text-2xl font-semibold text-accent">{p.n}</span>
+                  <div>
+                    <h3 className="font-display text-xl font-semibold text-ink">{p.title}</h3>
+                    <p className="mt-2 leading-relaxed text-muted">{p.body}</p>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <ConnectBeam />
+      <DestinationsMap />
+      <PartnerMarquee />
+    </>
+  );
 }

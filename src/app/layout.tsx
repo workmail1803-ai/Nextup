@@ -1,14 +1,22 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
-import Footer from "@/components/Footer";
-import ChatBot from "@/components/ChatBot";
+import { Fraunces, Inter } from "next/font/google";
 import JsonLd from "@/components/JsonLd";
+import Providers from "./providers";
+import { TopChrome, BottomChrome } from "@/components/chrome/SiteChrome";
 import "./globals.css";
 
-const plusJakarta = Plus_Jakarta_Sans({
-  variable: "--font-plus-jakarta",
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
+  display: "swap",
+});
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -18,7 +26,7 @@ export const metadata: Metadata = {
     template: "%s | NextUp Mentor",
   },
   description:
-    "Your trusted partner for European education. Expert guidance for university admissions, visa processing, and complete mentorship for studying in Italy, Lithuania, Germany, and beyond.",
+    "Student-led mentorship for European university admissions. Honest, transparent guidance for Italy, Lithuania, Germany and beyond — from people who made the journey themselves.",
   keywords: [
     "NextUp Mentor",
     "nextupmentor",
@@ -54,43 +62,43 @@ export const metadata: Metadata = {
     siteName: "NextUp Mentor",
     title: "NextUp Mentor | Study Abroad Consultancy for Europe",
     description:
-      "Your trusted partner for European education. Expert guidance for university admissions, visa processing, and complete mentorship for studying in Italy, Lithuania, Germany, and beyond.",
+      "Student-led mentorship for European university admissions. Honest, transparent guidance from people who made the journey themselves.",
     images: [
-      {
-        url: "/icon.png",
-        width: 512,
-        height: 512,
-        alt: "NextUp Mentor Logo",
-      },
+      { url: "/icon.png", width: 512, height: 512, alt: "NextUp Mentor" },
     ],
   },
   twitter: {
     card: "summary_large_image",
     title: "NextUp Mentor | Study Abroad Consultancy for Europe",
     description:
-      "Your trusted partner for European education. Expert guidance for university admissions, visa processing, and complete mentorship.",
+      "Student-led mentorship for European university admissions. Honest, transparent guidance.",
     images: ["/icon.png"],
   },
-  alternates: {
-    canonical: "https://nextupmentor.com",
-  },
-  // verification: {
-  //   google: "YOUR_GOOGLE_SEARCH_CONSOLE_VERIFICATION_CODE",
-  // },
+  alternates: { canonical: "https://nextupmentor.com" },
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className="scroll-smooth" data-scroll-behavior="smooth">
-      <body className={`${plusJakarta.variable} antialiased`}>
+    <html
+      lang="en"
+      className={`${fraunces.variable} ${inter.variable}`}
+      data-scroll-behavior="smooth"
+    >
+      <body className="antialiased">
         <JsonLd />
-        {children}
-        <Footer />
-        <ChatBot />
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-ink focus:px-5 focus:py-2.5 focus:text-on-ink focus:shadow-[var(--shadow-lg)]"
+        >
+          Skip to content
+        </a>
+        <Providers>
+          <TopChrome />
+          <main id="main">{children}</main>
+          <BottomChrome />
+        </Providers>
       </body>
     </html>
   );
