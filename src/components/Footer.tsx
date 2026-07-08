@@ -35,7 +35,7 @@ export default function Footer() {
             </h2>
           </div>
           <Link
-            href="/contact"
+            href="/book"
             className="group inline-flex h-14 items-center gap-2 rounded-full bg-accent px-8 font-semibold text-white transition-transform hover:-translate-y-0.5"
           >
             Book a free call
@@ -97,7 +97,13 @@ export default function Footer() {
       <div className="border-t border-white/10">
         <div className="container-edge flex flex-col items-center justify-between gap-3 py-6 text-xs text-on-ink-muted md:flex-row">
           <p>© {new Date().getFullYear()} NextUp Mentor. All rights reserved.</p>
-          <p>Built by students, for students.</p>
+          <div className="flex items-center gap-4">
+            <Link href="/staff_portal" className="transition-colors hover:text-accent-bright">
+              Staff Portal
+            </Link>
+            <span className="text-white/15">·</span>
+            <p>Built by students, for students.</p>
+          </div>
         </div>
       </div>
     </footer>

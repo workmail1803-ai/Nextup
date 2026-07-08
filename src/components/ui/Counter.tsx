@@ -37,6 +37,8 @@ export default function Counter({
 
   useEffect(() => {
     if (reduce) {
+      // Reduced motion: snap to the final value instead of animating.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDisplay(to);
       return;
     }

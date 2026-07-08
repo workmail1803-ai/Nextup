@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
             {
                 userAgent: "*",
                 allow: "/",
-                disallow: "/admin",
+                disallow: ["/admin", "/staff_portal"],
             },
         ],
         sitemap: "https://nextupmentor.com/sitemap.xml",

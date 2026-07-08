@@ -282,7 +282,9 @@ export default function UniversityExplorer() {
     });
   }, [query, country, field, maxTuition, maxIelts]);
 
+  // Reset the visible count back to one page whenever the filters change.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setShown(PAGE);
   }, [query, country, field, maxTuition, maxIelts]);
 

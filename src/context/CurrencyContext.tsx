@@ -27,9 +27,11 @@ const STORAGE_KEY = "nextup.currency";
 export function CurrencyProvider({ children }: { children: ReactNode }) {
   const [currency, setCurrencyState] = useState<Currency>("BDT");
 
-  // Hydrate from localStorage so the choice persists across navigation.
+  // Hydrate from localStorage after mount (intentionally deferred to avoid an
+  // SSR/client hydration mismatch on the initial currency).
   useEffect(() => {
     const saved = window.localStorage.getItem(STORAGE_KEY);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (saved === "BDT" || saved === "EUR") setCurrencyState(saved);
   }, []);
 

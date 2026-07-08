@@ -94,7 +94,7 @@ export default function Navbar() {
 
         <div className="hidden items-center gap-3 md:flex">
           <CurrencyToggle currency={currency} onChange={setCurrency} />
-          <Button href="/contact" size="sm" withArrow>
+          <Button href="/book" size="sm" withArrow>
             Book a call
           </Button>
         </div>
@@ -135,7 +135,7 @@ export default function Navbar() {
               ))}
               <div className="mt-3 flex items-center justify-between border-t border-line pt-4">
                 <CurrencyToggle currency={currency} onChange={setCurrency} />
-                <Button href="/contact" size="sm" withArrow onClick={() => setOpen(false)}>
+                <Button href="/book" size="sm" withArrow onClick={() => setOpen(false)}>
                   Book a call
                 </Button>
               </div>

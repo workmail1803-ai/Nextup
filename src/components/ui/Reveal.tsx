@@ -1,7 +1,11 @@
 "use client";
 
+/* eslint-disable react-hooks/static-components --
+   Reveal is polymorphic via `as`, so its motion component is derived from the
+   tag at render and memoized (framer-motion also caches these internally). */
+
 import { motion, useReducedMotion } from "framer-motion";
-import type { ElementType, ReactNode } from "react";
+import { useMemo, type ElementType, type ReactNode } from "react";
 import { ease, viewportOnce } from "@/lib/motion";
 
 interface RevealProps {
@@ -26,7 +30,7 @@ export default function Reveal({
   as = "div",
 }: RevealProps) {
   const reduce = useReducedMotion();
-  const MotionTag = motion(as as ElementType);
+  const MotionTag = useMemo(() => motion.create(as as ElementType), [as]);
 
   if (reduce) {
     const Tag = as as ElementType;

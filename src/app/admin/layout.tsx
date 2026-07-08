@@ -11,8 +11,8 @@ export default function AdminLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className="min-h-screen bg-slate-900">
-            {children}
+        <div className="admin-panel relative min-h-screen" style={{ background: "var(--ad-bg)" }}>
+            <div className="relative z-10">{children}</div>
         </div>
     );
 }

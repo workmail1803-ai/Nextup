@@ -3,13 +3,17 @@ export default function JsonLd() {
         "@context": "https://schema.org",
         "@type": "EducationalOrganization",
         name: "NextUp Mentor",
-        alternateName: "NextUp Mentors",
+        alternateName: ["NextUp Mentors", "NextUp Mentor Study Abroad Agency"],
         url: "https://nextupmentor.com",
         logo: "https://nextupmentor.com/icon.png",
         description:
-            "NextUp Mentor is a premium study abroad consultancy in Bangladesh specializing in European destinations. We provide structured, transparent, and student-focused guidance from university application to visa processing and beyond.",
+            "NextUp Mentor is a student-led study abroad agency in Bangladesh specialising in Italy, Lithuania, Germany and wider Europe. We provide honest, structured guidance from university admission and scholarships to student visa processing and beyond.",
         email: "nextupmentor@gmail.com",
         telephone: "+8801726867991",
+        address: {
+            "@type": "PostalAddress",
+            addressCountry: "BD",
+        },
         sameAs: [
             "https://www.facebook.com/profile.php?id=61585820771768",
             "https://www.instagram.com/nextup_mentor",
@@ -18,10 +22,20 @@ export default function JsonLd() {
             "@type": "Country",
             name: "Bangladesh",
         },
+        knowsAbout: [
+            "Study in Italy",
+            "Study in Lithuania",
+            "Study in Germany",
+            "Study abroad from Bangladesh",
+            "European university admission",
+            "DSU scholarship Italy",
+            "Student visa processing",
+        ],
         serviceType: [
-            "Study Abroad Consultancy",
+            "Italy study abroad agency",
+            "Lithuania study abroad agency",
             "University Admissions",
-            "Visa Processing",
+            "Student Visa Processing",
             "Education Mentorship",
         ],
     };

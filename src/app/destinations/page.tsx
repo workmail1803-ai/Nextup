@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Check, Wallet, GraduationCap, Globe2 } from "lucide-react";
+import Link from "next/link";
+import { Check, Wallet, GraduationCap, Globe2, ArrowRight } from "lucide-react";
 import { db, Destination } from "@/lib/supabase";
 import PageHero from "@/components/ui/PageHero";
 import Reveal from "@/components/ui/Reveal";
 import SectionHeading from "@/components/ui/SectionHeading";
 import DestinationsMap from "@/components/DestinationsMap";
 import PartnerMarquee from "@/components/PartnerMarquee";
+import { COUNTRY_SLUGS } from "@/lib/seo/countries";
 
 const benefits = [
   { Icon: Wallet, title: "Affordable or free", desc: "Many public universities charge little to no tuition." },
@@ -68,6 +70,15 @@ function DestinationsGrid() {
                 </li>
               ))}
             </ul>
+            {COUNTRY_SLUGS.includes(dest.country.trim().toLowerCase()) && (
+              <Link
+                href={`/destinations/${dest.country.trim().toLowerCase()}`}
+                className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-accent transition-all hover:gap-2.5"
+              >
+                Read the {dest.country} guide
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            )}
           </article>
         </Reveal>
       ))}

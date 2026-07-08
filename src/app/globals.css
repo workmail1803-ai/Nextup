@@ -226,19 +226,49 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover { background: #cdc4b4; }
 
-/* — Admin dashboard: dark, self-contained (NOT part of the public system) -- */
-.glass-card {
-  background: rgba(30, 41, 59, 0.6);
-  border: 1px solid rgba(148, 163, 184, 0.14);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+/* — Admin dashboard: professional dark, self-contained (NOT part of the public system) -- */
+
+/* Admin design tokens */
+.admin-panel {
+  --ad-bg: #111113;
+  --ad-bg-raised: #18181b;
+  --ad-surface: #1c1c1f;
+  --ad-surface-hover: #232326;
+  --ad-border: #27272a;
+  --ad-border-subtle: #202023;
+  --ad-text: #fafafa;
+  --ad-text-secondary: #a1a1aa;
+  --ad-text-tertiary: #71717a;
+  --ad-text-quaternary: #52525b;
+  --ad-accent: #3b82f6;
+  --ad-accent-hover: #2563eb;
+  --ad-accent-soft: rgba(59, 130, 246, 0.08);
+  --ad-accent-muted: rgba(59, 130, 246, 0.15);
+  --ad-positive: #22c55e;
+  --ad-warning: #f59e0b;
+  --ad-danger: #ef4444;
 }
-.glass {
-  background: rgba(15, 23, 42, 0.72);
-  border: 1px solid rgba(148, 163, 184, 0.14);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+
+/* Admin card — solid surface, thin border, no blur */
+.admin-card {
+  background: var(--ad-surface);
+  border: 1px solid var(--ad-border);
+  border-radius: 12px;
+  transition: border-color 150ms ease, background-color 150ms ease;
 }
+.admin-card:hover {
+  border-color: #303033;
+}
+
+/* Admin scrollbar */
+.admin-panel ::-webkit-scrollbar { width: 8px; height: 8px; }
+.admin-panel ::-webkit-scrollbar-track { background: var(--ad-bg); }
+.admin-panel ::-webkit-scrollbar-thumb {
+  background: #303033;
+  border-radius: 999px;
+  border: 2px solid var(--ad-bg);
+}
+.admin-panel ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
 
 /* — Reduced motion (global guarantee) ------------------------------------- */
 @media (prefers-reduced-motion: reduce) {

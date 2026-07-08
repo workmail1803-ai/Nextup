@@ -7,10 +7,13 @@ import FloatingContact from "@/components/FloatingContact";
 import ChatBot from "@/components/ChatBot";
 import { ScrollProgress } from "@/components/magicui/scroll-progress";
 
-/** Public-site chrome. Suppressed on the /admin dashboard. */
+/** Route prefixes that render their own internal chrome (no public nav/footer). */
+const INTERNAL_PREFIXES = ["/admin", "/staff_portal"];
+
+/** Public-site chrome. Suppressed on the internal dashboards. */
 function usePublicRoute() {
   const pathname = usePathname();
-  return !pathname.startsWith("/admin");
+  return !INTERNAL_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 }
 
 export function TopChrome() {

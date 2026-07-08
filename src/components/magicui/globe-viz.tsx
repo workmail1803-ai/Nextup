@@ -19,6 +19,8 @@ export default function GlobeViz() {
 
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // Capability check depends on window; only knowable after mount.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCapable(!reduce && window.innerWidth >= 768);
   }, []);
 
