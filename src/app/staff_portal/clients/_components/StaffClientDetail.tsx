@@ -2,12 +2,13 @@
 
 import { useCallback, useEffect, useState } from "react";
 import {
-  CalendarPlus, FileCheck2, Loader2, Mail, MessageCircle, Plus, Save, ShieldCheck,
+  CalendarPlus, ExternalLink, FileCheck2, Loader2, Mail, MessageCircle, Plus, Save, ShieldCheck,
 } from "lucide-react";
 import { Modal, StatusBadge, useToast } from "@/components/internal";
 import { MeetingService, type MeetingWithNames } from "@/lib/services/meeting.service";
 import { VisaService, type VisaWithDocs } from "@/lib/services/visa.service";
 import { ClientService } from "@/lib/services/client.service";
+import { supabase } from "@/lib/supabase";
 import type {
   ClientStage, ClientWithRelations, MeetingStatus, VisaDocStatus, VisaStatus,
 } from "@/lib/types/client";
@@ -256,9 +257,26 @@ export function StaffClientDetail({
                   {visa.documents.map((d) => (
                     <div key={d.id} className="flex items-center justify-between gap-3 rounded-lg px-3 py-2" style={{ background: "var(--nx-bg-2)" }}>
                       <span className="text-sm" style={{ color: "var(--nx-muted)" }}>{d.document_name}</span>
-                      <button onClick={() => cycleDoc(d.id, d.status)} title="Click to change">
-                        <StatusBadge label={VISA_DOC_STATUS_META[d.status].label} tone={VISA_DOC_STATUS_META[d.status].tone} />
-                      </button>
+                      <div className="flex items-center gap-2">
+                        {d.file_url && (
+                          <button
+                            className="crm-press flex h-6 items-center gap-1 rounded-md px-1.5 text-[0.65rem] font-semibold"
+                            style={{ color: "var(--nx-accent-2)", background: "var(--nx-accent-soft)" }}
+                            onClick={async () => {
+                              try {
+                                const url = await VisaService.getSignedUrl(supabase, d.file_url!, 3600);
+                                window.open(url, "_blank");
+                              } catch { /* silent */ }
+                            }}
+                            title="View uploaded file"
+                          >
+                            <ExternalLink className="h-3 w-3" /> View
+                          </button>
+                        )}
+                        <button onClick={() => cycleDoc(d.id, d.status)} title="Click to change">
+                          <StatusBadge label={VISA_DOC_STATUS_META[d.status].label} tone={VISA_DOC_STATUS_META[d.status].tone} />
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>

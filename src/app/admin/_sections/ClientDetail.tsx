@@ -2,11 +2,12 @@
 
 import { useCallback, useEffect, useState } from "react";
 import {
-  CalendarPlus, FileCheck2, Loader2, Mail, MessageCircle, Pencil, Plus,
+  CalendarPlus, ExternalLink, FileCheck2, Loader2, Mail, MessageCircle, Pencil, Plus,
   ShieldCheck, Trash2,
 } from "lucide-react";
 import { MeetingService, type MeetingWithNames } from "@/lib/services/meeting.service";
 import { VisaService, type VisaWithDocs } from "@/lib/services/visa.service";
+import { supabase } from "@/lib/supabase";
 import type { Staff } from "@/lib/types/staff";
 import type {
   ClientWithRelations, MeetingStatus, VisaDocStatus, VisaStatus,
@@ -247,9 +248,25 @@ export function ClientDetail({
                   {visa.documents.map((d) => (
                     <div key={d.id} className="flex items-center justify-between gap-3 rounded-lg bg-slate-900/40 px-3 py-2">
                       <span className="text-sm text-slate-200">{d.document_name}</span>
-                      <button onClick={() => cycleDoc(d.id, d.status)} title="Click to change status">
-                        <Badge label={DOC[d.status].label} tone={DOC[d.status].tone} />
-                      </button>
+                      <div className="flex items-center gap-2">
+                        {d.file_url && (
+                          <button
+                            className="flex items-center gap-1 rounded-md bg-amber-500/10 px-2 py-1 text-[11px] font-medium text-amber-400 hover:bg-amber-500/20"
+                            onClick={async () => {
+                              try {
+                                const url = await VisaService.getSignedUrl(supabase, d.file_url!, 3600);
+                                window.open(url, "_blank");
+                              } catch { /* silent */ }
+                            }}
+                            title="View uploaded file"
+                          >
+                            <ExternalLink className="h-3 w-3" /> View
+                          </button>
+                        )}
+                        <button onClick={() => cycleDoc(d.id, d.status)} title="Click to change status">
+                          <Badge label={DOC[d.status].label} tone={DOC[d.status].tone} />
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>

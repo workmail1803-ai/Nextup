@@ -90,6 +90,7 @@ export interface VisaDocumentItem {
   document_name: string;
   status: VisaDocStatus;
   note: string | null;
+  file_url: string | null;
   sort_order: number;
   created_at: string;
   updated_at: string;

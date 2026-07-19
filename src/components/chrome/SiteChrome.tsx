@@ -8,7 +8,7 @@ import ChatBot from "@/components/ChatBot";
 import { ScrollProgress } from "@/components/magicui/scroll-progress";
 
 /** Route prefixes that render their own internal chrome (no public nav/footer). */
-const INTERNAL_PREFIXES = ["/admin", "/staff_portal"];
+const INTERNAL_PREFIXES = ["/admin", "/staff_portal", "/crm", "/portal"];
 
 /** Public-site chrome. Suppressed on the internal dashboards. */
 function usePublicRoute() {

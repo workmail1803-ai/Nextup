@@ -1,0 +1,343 @@
+/* ============================================================================
+   NextUp CRM — staff workspace chrome  ·  layered over internal.css (.nx-app)
+   Scope: .crm-app. This layer adds only the app-shell physics: glass bars,
+   bottom tab dock, spring sheets, snap rails, press feedback, safe areas,
+   and the Journey Strip. All color comes from the --nx-* Studio Dark tokens.
+   ============================================================================ */
+
+.crm-app {
+  --crm-topbar-h: 3.5rem;
+  --crm-tabbar-h: 4rem;
+  --crm-rail-w: 15rem;
+  --crm-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  min-height: 100dvh;
+  /* Room for the floating dock on mobile */
+  padding-bottom: calc(var(--crm-tabbar-h) + env(safe-area-inset-bottom, 0px) + 0.75rem);
+}
+@media (min-width: 1024px) {
+  .crm-app { padding-bottom: 0; }
+}
+
+/* — Glass surfaces ---------------------------------------------------------- */
+.crm-glass {
+  background: rgba(16, 13, 9, 0.78);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+}
+
+/* — Top bar ----------------------------------------------------------------- */
+.crm-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  height: calc(var(--crm-topbar-h) + env(safe-area-inset-top, 0px));
+  padding-top: env(safe-area-inset-top, 0px);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding-left: 1rem;
+  padding-right: 0.75rem;
+  border-bottom: 1px solid var(--nx-edge);
+}
+
+/* — Bottom tab dock (mobile) ------------------------------------------------ */
+.crm-tabbar {
+  position: fixed;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 0.75rem);
+  z-index: 45;
+  height: var(--crm-tabbar-h);
+  display: flex;
+  align-items: stretch;
+  justify-content: space-around;
+  border: 1px solid var(--nx-edge-2);
+  border-radius: 1.4rem;
+  box-shadow: var(--nx-shadow-lg);
+  overflow: hidden;
+}
+/* Desktop uses the rail; hide the dock here (this layer outranks `lg:hidden`). */
+@media (min-width: 1024px) {
+  .crm-tabbar { display: none; }
+}
+.crm-tab {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.22rem;
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--nx-faint);
+  transition: color 180ms var(--crm-ease);
+  -webkit-tap-highlight-color: transparent;
+}
+.crm-tab[data-active="true"] { color: var(--nx-accent-2); }
+.crm-tab-pill {
+  position: absolute;
+  inset: 0.45rem 0.3rem;
+  border-radius: 1rem;
+  background: var(--nx-accent-soft);
+  z-index: -1;
+}
+
+/* — Desktop rail ------------------------------------------------------------ */
+.crm-rail {
+  width: var(--crm-rail-w);
+  border-right: 1px solid var(--nx-edge);
+  background: var(--nx-bg-2);
+}
+.crm-rail-item {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.7rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--nx-muted);
+  transition: color 160ms var(--crm-ease), background 160ms var(--crm-ease);
+}
+.crm-rail-item:hover { color: var(--nx-text); background: rgba(240, 232, 218, 0.04); }
+.crm-rail-item[data-active="true"] {
+  color: var(--nx-accent-2);
+  background: var(--nx-accent-soft);
+}
+
+/* — Press feedback: everything tappable feels physical ---------------------- */
+.crm-press {
+  transition: transform 150ms var(--crm-ease), box-shadow 150ms var(--crm-ease),
+    border-color 150ms var(--crm-ease);
+  -webkit-tap-highlight-color: transparent;
+}
+.crm-press:active { transform: scale(0.975); }
+
+/* — Snap rails (KPI carousel, kanban columns, filter chips) ------------------ */
+.crm-snap {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: 1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.crm-snap::-webkit-scrollbar { display: none; }
+.crm-snap > * { scroll-snap-align: start; flex: none; }
+
+/* — Cards / rows ------------------------------------------------------------ */
+.crm-card {
+  background: linear-gradient(180deg, var(--nx-panel-2), var(--nx-panel));
+  border: 1px solid var(--nx-edge);
+  border-radius: 1.1rem;
+}
+.crm-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 0.9rem;
+  -webkit-tap-highlight-color: transparent;
+}
+.crm-row:active { background: var(--nx-panel-2); }
+@media (hover: hover) {
+  .crm-row:hover { background: var(--nx-panel-2); }
+}
+
+/* — Filter chips ------------------------------------------------------------ */
+.crm-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  height: 2rem;
+  padding: 0 0.8rem;
+  border-radius: 999px;
+  border: 1px solid var(--nx-edge-2);
+  background: var(--nx-panel-2);
+  color: var(--nx-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all 160ms var(--crm-ease);
+  -webkit-tap-highlight-color: transparent;
+}
+.crm-chip[data-active="true"] {
+  background: var(--nx-accent-soft);
+  border-color: var(--nx-accent-line);
+  color: var(--nx-accent-2);
+}
+
+/* — Journey Strip: the signature. 7 notches, one lit path -------------------- */
+.crm-journey {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+}
+.crm-journey span {
+  height: 4px;
+  flex: 1;
+  border-radius: 999px;
+  background: var(--nx-edge-2);
+  transition: background 300ms var(--crm-ease);
+}
+.crm-journey span[data-lit="true"] {
+  background: linear-gradient(90deg, var(--nx-accent), var(--nx-accent-2));
+}
+.crm-journey span[data-current="true"] {
+  box-shadow: 0 0 8px rgba(242, 173, 66, 0.55);
+}
+.crm-journey[data-closed="true"] span[data-lit="true"] {
+  background: var(--nx-faint);
+  box-shadow: none;
+}
+
+/* — The Runway (dashboard hero distribution band) ---------------------------- */
+.crm-runway {
+  display: flex;
+  height: 2.6rem;
+  border-radius: 0.9rem;
+  overflow: hidden;
+  border: 1px solid var(--nx-edge);
+}
+.crm-runway button {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  padding: 0.3rem 0.45rem;
+  min-width: 2rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  transition: filter 160ms var(--crm-ease), flex-grow 400ms var(--crm-ease);
+  -webkit-tap-highlight-color: transparent;
+}
+.crm-runway button:hover { filter: brightness(1.25); }
+
+/* — Bottom sheet ------------------------------------------------------------ */
+.crm-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(6, 5, 3, 0.6);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+.crm-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 95;
+  margin: 0 auto;
+  max-width: 40rem;
+  max-height: 88dvh;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--nx-edge-2);
+  border-bottom: none;
+  border-radius: 1.4rem 1.4rem 0 0;
+  background: linear-gradient(180deg, var(--nx-elev), var(--nx-panel));
+  box-shadow: var(--nx-shadow-lg);
+  touch-action: none;
+}
+@media (min-width: 640px) {
+  .crm-sheet {
+    bottom: 1.25rem;
+    border-radius: 1.4rem;
+    border-bottom: 1px solid var(--nx-edge-2);
+  }
+}
+.crm-sheet-handle {
+  padding: 0.6rem 0 0.3rem;
+  display: flex;
+  justify-content: center;
+  cursor: grab;
+}
+.crm-sheet-handle::before {
+  content: "";
+  width: 2.4rem;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--nx-edge-2);
+}
+.crm-sheet-body {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.5rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom, 0px));
+  touch-action: pan-y;
+}
+
+/* — Search overlay ----------------------------------------------------------- */
+.crm-search-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 85;
+  display: flex;
+  flex-direction: column;
+}
+.crm-search-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--nx-text);
+  font-size: 1.05rem;
+  padding: 1rem 0;
+}
+.crm-search-input::placeholder { color: var(--nx-faint); }
+
+/* — Section headers ----------------------------------------------------------- */
+.crm-section-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--nx-faint);
+}
+
+/* — Kanban column ------------------------------------------------------------- */
+.crm-col {
+  width: min(21rem, 82vw);
+  display: flex;
+  flex-direction: column;
+  border-radius: 1.1rem;
+  border: 1px solid var(--nx-edge);
+  background: rgba(11, 9, 6, 0.4);
+  max-height: calc(100dvh - var(--crm-topbar-h) - var(--crm-tabbar-h) - 9rem);
+}
+@media (min-width: 1024px) {
+  .crm-col { max-height: calc(100dvh - var(--crm-topbar-h) - 8.5rem); }
+}
+.crm-col[data-over="true"] {
+  border-color: var(--nx-accent-line);
+  background: var(--nx-accent-soft);
+}
+.crm-col-body {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  scrollbar-width: none;
+}
+.crm-col-body::-webkit-scrollbar { display: none; }
+
+/* — Utility ------------------------------------------------------------------- */
+.crm-num { font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.crm-fade-edge {
+  mask-image: linear-gradient(90deg, transparent 0, #000 1rem, #000 calc(100% - 1rem), transparent 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crm-press, .crm-press:active { transition: none; transform: none; }
+  .crm-journey span { transition: none; }
+}

@@ -93,6 +93,12 @@ export default function Navbar() {
         </ul>
 
         <div className="hidden items-center gap-3 md:flex">
+          <Link
+            href="/portal/login"
+            className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-muted transition-colors hover:text-ink"
+          >
+            Student login
+          </Link>
           <CurrencyToggle currency={currency} onChange={setCurrency} />
           <Button href="/book" size="sm" withArrow>
             Book a call
@@ -133,6 +139,13 @@ export default function Navbar() {
                   {link.name}
                 </Link>
               ))}
+              <Link
+                href="/portal/login"
+                onClick={() => setOpen(false)}
+                className="rounded-xl px-4 py-3 text-lg font-medium text-muted transition-colors hover:bg-paper-2 hover:text-ink"
+              >
+                Student login
+              </Link>
               <div className="mt-3 flex items-center justify-between border-t border-line pt-4">
                 <CurrencyToggle currency={currency} onChange={setCurrency} />
                 <Button href="/book" size="sm" withArrow onClick={() => setOpen(false)}>

@@ -13,15 +13,18 @@ import type {
 const DEFAULT_DOCS = [
   "Valid Passport",
   "Passport-size Photographs",
+  "SSC Transcript & Certificate",
+  "HSC Transcript & Certificate",
+  "IELTS / Language Certificate",
   "University Offer / Admission Letter",
   "Bank Statement / Financial Proof",
   "Sponsorship / Affidavit of Support",
-  "IELTS / Language Certificate",
-  "Academic Transcripts & Certificates",
   "Accommodation Proof",
   "Health / Travel Insurance",
   "Completed Visa Application Form",
 ];
+
+const BUCKET = "client-documents";
 
 export interface VisaWithDocs extends ClientVisa {
   documents: VisaDocumentItem[];
@@ -82,7 +85,7 @@ export const VisaService = {
 
   async updateDocument(
     id: string,
-    patch: { status?: VisaDocStatus; note?: string | null },
+    patch: { status?: VisaDocStatus; note?: string | null; file_url?: string | null },
   ): Promise<VisaDocumentItem> {
     const { data, error } = await supabase
       .from("visa_document_items")
@@ -107,5 +110,63 @@ export const VisaService = {
   async removeDocument(id: string): Promise<void> {
     const { error } = await supabase.from("visa_document_items").delete().eq("id", id);
     if (error) throw error;
+  },
+
+  // ---------------------------------------------------------------------------
+  // Document file upload helpers
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Upload a file to the client-documents bucket and save the path on the
+   * visa_document_items row. Also auto-moves the status to "received" if
+   * it's still "pending".
+   *
+   * @param sb       The Supabase client to use (portalSupabase or anon supabase)
+   * @param clientId The client's UUID — used as the folder prefix
+   * @param docId    The visa_document_items row UUID
+   * @param file     The File object from the input
+   * @param currentStatus  The current doc status so we know if we should move to "received"
+   */
+  async uploadDocumentFile(
+    sb: typeof supabase,
+    clientId: string,
+    docId: string,
+    file: File,
+    currentStatus: VisaDocStatus,
+  ): Promise<{ filePath: string }> {
+    // Sanitise filename
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+    const filePath = `${clientId}/${docId}/${safeName}`;
+
+    // Upsert so replacing a file works seamlessly
+    const { error: uploadErr } = await sb.storage
+      .from(BUCKET)
+      .upload(filePath, file, { upsert: true });
+    if (uploadErr) throw uploadErr;
+
+    // Save the path on the row
+    const patch: { file_url: string; status?: VisaDocStatus } = { file_url: filePath };
+    if (currentStatus === "pending") patch.status = "received";
+
+    const { error: updateErr } = await sb
+      .from("visa_document_items")
+      .update(patch)
+      .eq("id", docId);
+    if (updateErr) throw updateErr;
+
+    return { filePath };
+  },
+
+  /** Generate a temporary signed URL for viewing/downloading a file. */
+  async getSignedUrl(
+    sb: typeof supabase,
+    filePath: string,
+    expiresInSeconds = 3600,
+  ): Promise<string> {
+    const { data, error } = await sb.storage
+      .from(BUCKET)
+      .createSignedUrl(filePath, expiresInSeconds);
+    if (error) throw error;
+    return data.signedUrl;
   },
 };
