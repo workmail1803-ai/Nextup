@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { ToastProvider } from "@/components/internal";
+import { StaffAuthProvider } from "@/lib/auth/StaffAuthContext";
 import "@/styles/internal.css";
 import "@/styles/crm.css";
 
@@ -16,11 +17,17 @@ export const viewport: Viewport = {
   themeColor: "#100d09",
 };
 
-/** Theme frame for the whole CRM surface (login + app share the look). */
+/**
+ * Theme frame for the whole CRM surface (login + app share the look).
+ * StaffAuthProvider wraps both, so the login page can see an existing session
+ * and skip straight through instead of asking a signed-in user to sign in.
+ */
 export default function CrmLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="nx-app crm-app">
-      <ToastProvider>{children}</ToastProvider>
+      <StaffAuthProvider>
+        <ToastProvider>{children}</ToastProvider>
+      </StaffAuthProvider>
     </div>
   );
 }

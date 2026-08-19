@@ -7,7 +7,8 @@ import { motion } from "framer-motion";
 import { CalendarClock, ChevronRight, Wallet } from "lucide-react";
 import { Avatar, AreaChart, StatusBadge } from "@/components/internal";
 import { JourneyStrip } from "@/components/crm/JourneyStrip";
-import { useStaffSession } from "@/lib/hooks/useStaffSession";
+import { AttendanceCard } from "@/components/crm/AttendanceCard";
+import { useStaffAuth } from "@/lib/auth/StaffAuthContext";
 import { ClientService } from "@/lib/services/client.service";
 import { AppointmentService } from "@/lib/services/appointment.service";
 import { AttendanceService } from "@/lib/services/attendance.service";
@@ -61,7 +62,7 @@ interface TodayData {
 
 export default function TodayPage() {
   const router = useRouter();
-  const { session } = useStaffSession();
+  const { staff } = useStaffAuth();
   const [data, setData] = useState<TodayData | null>(null);
 
   useEffect(() => {
@@ -124,7 +125,7 @@ export default function TodayPage() {
       .slice(0, 5);
   }, [data]);
 
-  const firstName = session?.fullName.split(" ")[0] ?? "there";
+  const firstName = staff?.full_name.split(" ")[0] ?? "there";
   const total = data?.clients.length ?? 0;
 
   const kpis = [
@@ -216,6 +217,11 @@ export default function TodayPage() {
           </motion.div>
         ))}
       </motion.section>
+
+      {/* Your shift clock — merged in from the old /staff_portal dashboard */}
+      <section className="px-4 sm:px-6">
+        <AttendanceCard />
+      </section>
 
       {/* Today's meetings */}
       <section className="px-4 sm:px-6">

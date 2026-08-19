@@ -41,50 +41,11 @@ export default function AdminPage() {
     const [isEditingDestination, setIsEditingDestination] = useState(false);
     const [currentDestination, setCurrentDestination] = useState<Partial<Destination>>({});
 
-    // Simple Auth State
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [password, setPassword] = useState("");
-
-    // Fetch data from Supabase on mount
+    // Auth is handled by <AdminGate> in layout.tsx — this component only ever
+    // renders for a signed-in admin, so it can load immediately.
     useEffect(() => {
-        if (isAuthenticated) {
-            fetchAllData();
-        }
-    }, [isAuthenticated]);
-
-    if (!isAuthenticated) {
-        return (
-            <div className="flex min-h-screen items-center justify-center" style={{ background: "var(--ad-bg)" }}>
-                <div className="admin-card p-8 w-full max-w-sm">
-                    <h1 className="text-[15px] font-semibold text-[var(--ad-text)] mb-1">Admin Access</h1>
-                    <p className="text-[13px] text-[var(--ad-text-tertiary)] mb-6">Enter your password to continue.</p>
-                    <form onSubmit={(e) => {
-                        e.preventDefault();
-                        if (password === "Fahim01883@") {
-                            setIsAuthenticated(true);
-                        } else {
-                            alert("Incorrect password");
-                        }
-                    }}>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="Password"
-                            className="w-full rounded-lg bg-[var(--ad-bg-raised)] px-3 py-2.5 text-[13px] text-[var(--ad-text)] border border-[var(--ad-border)] focus:border-[var(--ad-accent)] focus:outline-none transition-colors mb-4 placeholder:text-[var(--ad-text-quaternary)]"
-                            autoFocus
-                        />
-                        <button
-                            type="submit"
-                            className="w-full py-2.5 bg-[var(--ad-accent)] text-white rounded-lg text-[13px] font-medium hover:bg-[var(--ad-accent-hover)] transition-colors"
-                        >
-                            Sign in
-                        </button>
-                    </form>
-                </div>
-            </div>
-        );
-    }
+        fetchAllData();
+    }, []);
 
     const fetchAllData = async () => {
         setLoading(true);

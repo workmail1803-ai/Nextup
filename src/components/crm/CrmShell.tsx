@@ -1,16 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
-  LayoutDashboard, FolderKanban, Users, Calendar, Wallet,
+  LayoutDashboard, FolderKanban, Users, Calendar, Wallet, CalendarClock,
   Search, LogOut, ExternalLink, type LucideIcon,
 } from "lucide-react";
 import { Avatar } from "@/components/internal";
-import { useStaffSession } from "@/lib/hooks/useStaffSession";
-import { clearSession } from "@/lib/session/staff-session";
+import { useStaffAuth } from "@/lib/auth/StaffAuthContext";
 import { Sheet } from "./Sheet";
 import { SearchOverlay } from "./SearchOverlay";
 
@@ -18,6 +17,10 @@ interface Tab {
   href: string;
   label: string;
   icon: LucideIcon;
+  /** Admin-only tabs are hidden for staff. RLS is what actually enforces it. */
+  adminOnly?: boolean;
+  /** Shown only to staff an admin has marked as mentors. */
+  mentorOnly?: boolean;
 }
 
 const TABS: Tab[] = [
@@ -25,7 +28,8 @@ const TABS: Tab[] = [
   { href: "/crm/pipeline", label: "Pipeline", icon: FolderKanban },
   { href: "/crm/clients", label: "Clients", icon: Users },
   { href: "/crm/bookings", label: "Bookings", icon: Calendar },
-  { href: "/crm/finance", label: "Finance", icon: Wallet },
+  { href: "/crm/schedule", label: "My hours", icon: CalendarClock, mentorOnly: true },
+  { href: "/crm/finance", label: "Finance", icon: Wallet, adminOnly: true },
 ];
 
 function isActive(pathname: string, href: string) {
@@ -35,14 +39,29 @@ function isActive(pathname: string, href: string) {
 export function CrmShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { session } = useStaffSession();
+  const { staff, isAdmin, isMentor, signOut: authSignOut } = useStaffAuth();
   const [searchOpen, setSearchOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
 
-  const current = TABS.find((t) => isActive(pathname, t.href)) ?? TABS[0];
+  const tabs = useMemo(
+    () => TABS.filter((t) => (!t.adminOnly || isAdmin) && (!t.mentorOnly || isMentor)),
+    [isAdmin, isMentor],
+  );
+  const current = tabs.find((t) => isActive(pathname, t.href)) ?? tabs[0];
 
-  function signOut() {
-    clearSession();
+  // Shape the old `session` fields the rest of this component reads, so the
+  // auth swap stays contained to this one adapter.
+  const session = staff
+    ? {
+        fullName: staff.full_name,
+        avatarUrl: staff.avatar_url,
+        title: staff.title,
+        staffCode: staff.staff_code,
+      }
+    : null;
+
+  async function signOut() {
+    await authSignOut();
     router.replace("/crm/login");
   }
 
@@ -71,7 +90,7 @@ export function CrmShell({ children }: { children: React.ReactNode }) {
         </Link>
 
         <nav className="mt-6 flex-1 space-y-1">
-          {TABS.map((t) => {
+          {tabs.map((t) => {
             const Icon = t.icon;
             return (
               <Link
@@ -173,7 +192,7 @@ export function CrmShell({ children }: { children: React.ReactNode }) {
 
       {/* Mobile dock */}
       <nav className="crm-tabbar crm-glass lg:hidden" aria-label="Main">
-        {TABS.map((t) => {
+        {tabs.map((t) => {
           const Icon = t.icon;
           const active = isActive(pathname, t.href);
           return (

@@ -3,7 +3,10 @@
 // Numeric columns arrive as strings from PostgREST → coerced to number here.
 // =============================================================================
 
-import { supabase } from "@/lib/supabase";
+// Every query here is staff-only, so it must carry the signed-in staff JWT —
+// the anon client would run as role `anon` and is_staff()/is_admin() would
+// see nobody. Aliased so the body of this module reads unchanged.
+import { staffSupabase as supabase } from "@/lib/auth/supabase-staff";
 import type {
   Budget, BudgetPeriod, CategoryInsert, CategoryUpdate,
   ExpenseCategory, ExpenseInsert, ExpenseUpdate, ExpenseWithCategory,

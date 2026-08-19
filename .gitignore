@@ -42,3 +42,6 @@ next-env.d.ts
 
 # Claude Code local tooling
 .claude/
+
+# local data backups (contain real student PII — never commit)
+/backups

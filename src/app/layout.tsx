@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fraunces, Inter } from "next/font/google";
+import { Fraunces, IBM_Plex_Mono, Inter } from "next/font/google";
 import JsonLd from "@/components/JsonLd";
 import Providers from "./providers";
 import { TopChrome, BottomChrome } from "@/components/chrome/SiteChrome";
@@ -10,6 +10,16 @@ const fraunces = Fraunces({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   style: ["normal", "italic"],
+  display: "swap",
+});
+
+// Utility face for the student portal: reference numbers, dates, statuses.
+// IBM Plex was drawn for institutional documentation, which is exactly the
+// register the portal's "case file" framing needs.
+const plexMono = IBM_Plex_Mono({
+  variable: "--font-plex-mono",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
   display: "swap",
 });
 
@@ -86,7 +96,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${inter.variable}`}
+      className={`${fraunces.variable} ${inter.variable} ${plexMono.variable}`}
       data-scroll-behavior="smooth"
     >
       <body className="antialiased">

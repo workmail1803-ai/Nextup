@@ -3,7 +3,11 @@
 // staff/admin queue. Phone numbers are stored normalized (digits) and unique.
 // =============================================================================
 
-import { supabase } from "@/lib/supabase";
+// This service straddles the auth boundary:
+//   * create()  — the public /book page, no login. Must stay on the anon client.
+//   * everything else — the staff queue, needs the staff JWT for is_staff().
+import { supabase as anonSupabase } from "@/lib/supabase";
+import { staffSupabase } from "@/lib/auth/supabase-staff";
 import {
   normalizePhone,
   type Appointment,
@@ -31,16 +35,18 @@ export const AppointmentService = {
     const phone = normalizePhone(input.phone);
     if (!phone) throw new Error("INVALID_PHONE");
 
-    const { data: existing, error: checkErr } = await supabase
-      .from(TABLE)
-      .select("id")
-      .eq("phone", phone)
-      .maybeSingle();
+    // Via RPC, not a SELECT: after migration 0012 anon may INSERT appointments
+    // but never read them, so a visitor cannot enumerate the booking queue.
+    // phone_already_booked() is SECURITY DEFINER and returns only a boolean.
+    const { data: existing, error: checkErr } = await anonSupabase.rpc(
+      "phone_already_booked",
+      { p_phone: phone },
+    );
     if (checkErr) throw checkErr;
     if (existing) throw new DuplicatePhoneError();
 
     const status: AppointmentStatus = input.preferred_mentor_id ? "assigned" : "pending";
-    const { data, error } = await supabase
+    const { data, error } = await anonSupabase
       .from(TABLE)
       .insert({
         ...input,
@@ -60,7 +66,7 @@ export const AppointmentService = {
 
   /** Full queue for staff/admin, newest first. */
   async list(): Promise<AppointmentWithMentors[]> {
-    const { data, error } = await supabase
+    const { data, error } = await staffSupabase
       .from(TABLE)
       .select(WITH_MENTORS)
       .order("created_at", { ascending: false });
@@ -70,7 +76,7 @@ export const AppointmentService = {
 
   /** Appointments assigned to (or in the pool awaiting) a given mentor. */
   async listForMentor(staffId: string): Promise<AppointmentWithMentors[]> {
-    const { data, error } = await supabase
+    const { data, error } = await staffSupabase
       .from(TABLE)
       .select(WITH_MENTORS)
       .or(`assigned_mentor_id.eq.${staffId},and(assigned_mentor_id.is.null,preferred_mentor_id.is.null)`)
@@ -80,7 +86,7 @@ export const AppointmentService = {
   },
 
   async assign(id: string, mentorId: string | null): Promise<void> {
-    const { error } = await supabase
+    const { error } = await staffSupabase
       .from(TABLE)
       .update({ assigned_mentor_id: mentorId, status: mentorId ? "assigned" : "pending" })
       .eq("id", id);
@@ -91,22 +97,22 @@ export const AppointmentService = {
     id: string,
     patch: Partial<Pick<Appointment, "status" | "scheduled_at" | "notes" | "assigned_mentor_id">>,
   ): Promise<void> {
-    const { error } = await supabase.from(TABLE).update(patch).eq("id", id);
+    const { error } = await staffSupabase.from(TABLE).update(patch).eq("id", id);
     if (error) throw error;
   },
 
   async remove(id: string): Promise<void> {
-    const { error } = await supabase.from(TABLE).delete().eq("id", id);
+    const { error } = await staffSupabase.from(TABLE).delete().eq("id", id);
     if (error) throw error;
   },
 
   subscribe(onChange: () => void): () => void {
-    const channel = supabase
+    const channel = staffSupabase
       .channel("appointments-all")
       .on("postgres_changes", { event: "*", schema: "public", table: TABLE }, () => onChange())
       .subscribe();
     return () => {
-      supabase.removeChannel(channel);
+      staffSupabase.removeChannel(channel);
     };
   },
 };

@@ -9,7 +9,7 @@ import { ClientSheet } from "@/components/crm/ClientSheet";
 import { Sheet } from "@/components/crm/Sheet";
 import { ClientService } from "@/lib/services/client.service";
 import { StaffService } from "@/lib/services/staff.service";
-import { useStaffSession } from "@/lib/hooks/useStaffSession";
+import { useStaffAuth } from "@/lib/auth/StaffAuthContext";
 import {
   DEGREE_META, STAGE_META,
   type ClientInsert, type ClientStage, type ClientWithRelations, type DegreeLevel,
@@ -30,7 +30,8 @@ function ClientsView() {
   const toast = useToast();
   const router = useRouter();
   const params = useSearchParams();
-  const { session } = useStaffSession();
+  // `me` = the signed-in staff member; `staff` below is the whole roster.
+  const { staff: me } = useStaffAuth();
 
   const [clients, setClients] = useState<ClientWithRelations[]>([]);
   const [staff, setStaff] = useState<Staff[]>([]);
@@ -189,7 +190,7 @@ function ClientsView() {
       <NewClientSheet
         open={creating}
         staff={staff}
-        addedById={session?.staffId ?? null}
+        addedById={me?.id ?? null}
         onClose={() => setCreating(false)}
         onCreated={() => {
           setCreating(false);

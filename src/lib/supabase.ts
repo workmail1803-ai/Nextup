@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { staffSupabase } from "@/lib/auth/supabase-staff";
 
 // Database types based on our schema
 export interface Package {
@@ -97,7 +98,7 @@ export const db = {
             return data as Package;
         },
         async create(pkg: PackageInsert): Promise<Package> {
-            const { data, error } = await supabase
+            const { data, error } = await staffSupabase
                 .from("packages")
                 .insert(pkg)
                 .select()
@@ -106,7 +107,7 @@ export const db = {
             return data as Package;
         },
         async update(id: string, pkg: PackageUpdate): Promise<Package> {
-            const { data, error } = await supabase
+            const { data, error } = await staffSupabase
                 .from("packages")
                 .update(pkg)
                 .eq("id", id)
@@ -116,7 +117,7 @@ export const db = {
             return data as Package;
         },
         async delete(id: string): Promise<void> {
-            const { error } = await supabase
+            const { error } = await staffSupabase
                 .from("packages")
                 .update({ is_active: false })
                 .eq("id", id);
@@ -127,7 +128,7 @@ export const db = {
     // Enrollments
     enrollments: {
         async getAll(): Promise<Enrollment[]> {
-            const { data, error } = await supabase
+            const { data, error } = await staffSupabase
                 .from("enrollments")
                 .select("*")
                 .order("created_at", { ascending: false });
@@ -144,7 +145,7 @@ export const db = {
             return data as Enrollment;
         },
         async updateStatus(id: string, status: Enrollment["status"], notes?: string): Promise<Enrollment> {
-            const { data, error } = await supabase
+            const { data, error } = await staffSupabase
                 .from("enrollments")
                 .update({ status, admin_notes: notes })
                 .eq("id", id)
@@ -166,7 +167,7 @@ export const db = {
             return data as Destination[];
         },
         async create(destination: DestinationInsert): Promise<Destination> {
-            const { data, error } = await supabase
+            const { data, error } = await staffSupabase
                 .from("destinations")
                 .insert(destination)
                 .select()
@@ -175,7 +176,7 @@ export const db = {
             return data as Destination;
         },
         async update(id: string, destination: DestinationUpdate): Promise<Destination> {
-            const { data, error } = await supabase
+            const { data, error } = await staffSupabase
                 .from("destinations")
                 .update(destination)
                 .eq("id", id)
@@ -185,7 +186,7 @@ export const db = {
             return data as Destination;
         },
         async delete(id: string): Promise<void> {
-            const { error } = await supabase
+            const { error } = await staffSupabase
                 .from("destinations")
                 .delete()
                 .eq("id", id);
@@ -196,7 +197,7 @@ export const db = {
     // Messages
     messages: {
         async getAll(): Promise<Message[]> {
-            const { data, error } = await supabase
+            const { data, error } = await staffSupabase
                 .from("messages")
                 .select("*")
                 .order("created_at", { ascending: false });
@@ -217,7 +218,7 @@ export const db = {
             if (status === "replied") {
                 update.replied_at = new Date().toISOString();
             }
-            const { data, error } = await supabase
+            const { data, error } = await staffSupabase
                 .from("messages")
                 .update(update)
                 .eq("id", id)
@@ -231,14 +232,14 @@ export const db = {
     // Storage helpers for package images
     storage: {
         async uploadImage(file: File, path: string): Promise<string> {
-            const { data, error } = await supabase.storage
+            const { data, error } = await staffSupabase.storage
                 .from("package-images")
                 .upload(path, file, { upsert: true });
             if (error) throw error;
-            return supabase.storage.from("package-images").getPublicUrl(data.path).data.publicUrl;
+            return staffSupabase.storage.from("package-images").getPublicUrl(data.path).data.publicUrl;
         },
         async deleteImage(path: string): Promise<void> {
-            const { error } = await supabase.storage
+            const { error } = await staffSupabase.storage
                 .from("package-images")
                 .remove([path]);
             if (error) throw error;

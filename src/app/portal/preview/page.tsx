@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { FlaskConical, Search } from "lucide-react";
 import { Avatar, StatusBadge } from "@/components/internal";
 import { JourneyStrip } from "@/components/crm/JourneyStrip";
-import { supabase } from "@/lib/supabase";
+import { staffSupabase } from "@/lib/auth/supabase-staff";
 import { STAGE_META, type ClientStage } from "@/lib/types/client";
 
 interface Row {
@@ -32,7 +32,7 @@ export default function PortalPreviewPicker() {
   useEffect(() => {
     if (!isDev) return;
     const t = setTimeout(() => {
-      supabase
+      staffSupabase
         .from("clients")
         .select("id, full_name, email, stage, country_interest")
         .order("full_name")

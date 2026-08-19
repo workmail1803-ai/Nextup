@@ -1,23 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CalendarDays } from "lucide-react";
-import { StatusBadge, type BadgeTone } from "@/components/internal";
 import { usePortal } from "@/lib/portal/PortalContext";
 import type { ClientMeeting, MeetingStatus } from "@/lib/types/client";
 
-/** Student-facing labels — softer than the internal status names. */
-const MEETING_UI: Record<MeetingStatus, { label: string; tone: BadgeTone }> = {
-  scheduled: { label: "Upcoming", tone: "info" },
-  completed: { label: "Done", tone: "positive" },
-  no_show: { label: "Missed", tone: "danger" },
-  follow_up: { label: "Follow-up", tone: "warning" },
-  cancelled: { label: "Cancelled", tone: "neutral" },
+/** Student-facing labels. Softer than the internal status names, and never
+ *  blaming: an internal "no_show" reads as "Missed" here, not "You failed to attend". */
+const MEETING_UI: Record<MeetingStatus, { label: string; tone: string }> = {
+  scheduled: { label: "Booked", tone: "await" },
+  completed: { label: "Done", tone: "approved" },
+  no_show: { label: "Missed", tone: "halt" },
+  follow_up: { label: "Follow-up", tone: "await" },
+  cancelled: { label: "Cancelled", tone: "mute" },
 };
 
 export default function PortalMeetings() {
-  const { meetings } = usePortal();
-  // Captured off the render path so partitioning stays pure.
+  const { meetings, mentor } = usePortal();
+
+  // Read the clock off the render path so the split stays pure across hydration.
   const [now, setNow] = useState(0);
   useEffect(() => {
     const t = setTimeout(() => setNow(Date.now()), 0);
@@ -31,45 +31,58 @@ export default function PortalMeetings() {
     .filter((m) => !upcoming.includes(m))
     .sort((a, b) => new Date(b.scheduled_at ?? 0).getTime() - new Date(a.scheduled_at ?? 0).getTime());
 
-  return (
-    <div className="space-y-5 px-4 py-5 sm:px-6">
-      {meetings.length === 0 && (
-        <div className="crm-card flex flex-col items-center px-6 py-14 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl" style={{ background: "var(--nx-accent-soft)", color: "var(--nx-accent-2)" }}>
-            <CalendarDays className="h-6 w-6" strokeWidth={1.8} />
-          </div>
-          <p className="mt-4 text-sm font-semibold" style={{ color: "var(--nx-text)" }}>No meetings yet</p>
-          <p className="mt-1.5 max-w-xs text-sm" style={{ color: "var(--nx-faint)" }}>
-            When your consultant books a session with you, it&apos;ll show up here with all the details.
-          </p>
-        </div>
-      )}
+  const next = upcoming[0];
 
-      {upcoming.length > 0 && (
-        <section>
-          <h3 className="crm-section-title mb-2 px-1">Upcoming</h3>
-          <div className="space-y-2">
-            {upcoming.map((m) => (
-              <MeetingCard key={m.id} meeting={m} highlight />
+  return (
+    <div className="px-5 pb-8 pt-7">
+      <section>
+        <p className="pf-label">Meetings</p>
+        {next ? (
+          <>
+            <h1 className="pf-display mt-2.5 text-[1.9rem]">
+              {new Date(next.scheduled_at!).toLocaleDateString("en-GB", {
+                weekday: "long", day: "numeric", month: "long",
+              })}
+            </h1>
+            <p className="pf-mono mt-2 text-[0.9375rem]" style={{ color: "var(--pf-vellum-2)" }}>
+              {new Date(next.scheduled_at!).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
+              {mentor ? ` · with ${mentor.full_name}` : ""}
+            </p>
+            {next.comments && (
+              <p className="mt-3 max-w-[46ch] text-[0.9375rem] leading-relaxed" style={{ color: "var(--pf-vellum-2)" }}>
+                {next.comments}
+              </p>
+            )}
+          </>
+        ) : (
+          <>
+            <h1 className="pf-display mt-2.5 text-[1.9rem]">Nothing booked.</h1>
+            <p className="mt-3 max-w-[46ch] text-[0.9375rem] leading-relaxed" style={{ color: "var(--pf-vellum-2)" }}>
+              {meetings.length === 0
+                ? "When your consultant books a session, the time and the joining details land here."
+                : "No upcoming session right now. Your consultant will book the next one when it's needed."}
+            </p>
+          </>
+        )}
+      </section>
+
+      {upcoming.length > 1 && (
+        <section className="mt-7">
+          <p className="pf-label mb-2.5">Also booked</p>
+          <div className="pf-panel overflow-hidden">
+            {upcoming.slice(1).map((m) => (
+              <MeetingRow key={m.id} meeting={m} />
             ))}
           </div>
         </section>
       )}
 
       {past.length > 0 && (
-        <section>
-          <h3 className="crm-section-title mb-2 px-1">Past</h3>
-          <div className="crm-card overflow-hidden">
-            {past.map((m, i) => (
-              <div key={m.id} className="flex items-center gap-3 px-4 py-3" style={i === 0 ? undefined : { borderTop: "1px solid var(--nx-edge)" }}>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium" style={{ color: "var(--nx-text)" }}>
-                    {m.scheduled_at ? new Date(m.scheduled_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "Unscheduled"}
-                  </p>
-                  {m.follow_up_note && <p className="mt-0.5 truncate text-xs" style={{ color: "var(--nx-faint)" }}>{m.follow_up_note}</p>}
-                </div>
-                <StatusBadge label={MEETING_UI[m.status].label} tone={MEETING_UI[m.status].tone} />
-              </div>
+        <section className="mt-7">
+          <p className="pf-label mb-2.5">Earlier</p>
+          <div className="pf-panel overflow-hidden">
+            {past.map((m) => (
+              <MeetingRow key={m.id} meeting={m} />
             ))}
           </div>
         </section>
@@ -78,33 +91,28 @@ export default function PortalMeetings() {
   );
 }
 
-function MeetingCard({ meeting, highlight }: { meeting: ClientMeeting; highlight?: boolean }) {
+function MeetingRow({ meeting }: { meeting: ClientMeeting }) {
+  const ui = MEETING_UI[meeting.status];
   const d = meeting.scheduled_at ? new Date(meeting.scheduled_at) : null;
   return (
-    <div className="crm-card p-4" style={highlight ? { borderColor: "var(--nx-accent-line)" } : undefined}>
-      <div className="flex items-center gap-3.5">
-        <div
-          className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-xl"
-          style={{ background: "var(--nx-accent-soft)", color: "var(--nx-accent-2)" }}
-        >
-          <span className="crm-num text-[0.6rem] font-semibold uppercase">{d ? d.toLocaleDateString("en-GB", { month: "short" }) : "—"}</span>
-          <span className="crm-num text-lg font-bold leading-none">{d ? d.getDate() : "?"}</span>
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold" style={{ color: "var(--nx-text)" }}>
+    <div className="pf-record">
+      <span className="pf-mono w-[5.5rem] shrink-0 text-[0.75rem]" style={{ color: "var(--pf-vellum-2)" }}>
+        {d ? d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "2-digit" }) : "—"}
+      </span>
+      <div className="min-w-0 flex-1">
+        {meeting.follow_up_note ? (
+          <p className="truncate text-[0.8125rem]" style={{ color: "var(--pf-vellum-2)" }}>
+            {meeting.follow_up_note}
+          </p>
+        ) : (
+          <p className="text-[0.8125rem]" style={{ color: "var(--pf-vellum-3)" }}>
             {d ? d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) : "Time to be confirmed"}
           </p>
-          <p className="text-xs" style={{ color: "var(--nx-faint)" }}>
-            {d ? d.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }) : "Your consultant will confirm the date"}
-          </p>
-        </div>
-        <StatusBadge label={MEETING_UI[meeting.status].label} tone={MEETING_UI[meeting.status].tone} />
+        )}
       </div>
-      {meeting.comments && (
-        <p className="mt-3 rounded-lg px-3 py-2 text-sm" style={{ background: "var(--nx-panel-2)", color: "var(--nx-muted)" }}>
-          {meeting.comments}
-        </p>
-      )}
+      <span className="pf-status" data-tone={ui.tone}>
+        {ui.label}
+      </span>
     </div>
   );
 }

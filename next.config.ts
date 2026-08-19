@@ -10,6 +10,18 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: projectRoot,
   },
+  // /staff_portal and /crm were two near-identical staff surfaces. They are now
+  // one (/crm). These keep every old bookmark, and the links already sent to
+  // staff, working — permanent so browsers and search engines stop asking.
+  async redirects() {
+    return [
+      { source: "/staff_portal", destination: "/crm", permanent: true },
+      { source: "/staff_portal/login", destination: "/crm/login", permanent: true },
+      { source: "/staff_portal/dashboard", destination: "/crm", permanent: true },
+      { source: "/staff_portal/clients", destination: "/crm/clients", permanent: true },
+      { source: "/staff_portal/:path*", destination: "/crm", permanent: true },
+    ];
+  },
   images: {
     remotePatterns: [
       {

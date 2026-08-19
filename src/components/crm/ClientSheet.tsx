@@ -1,10 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ExternalLink, GraduationCap, Mail, MessageSquare, Phone, Plane, Plus, Trash2 } from "lucide-react";
+import { CalendarPlus, ExternalLink, GraduationCap, Mail, MessageSquare, Phone, Plane, Plus, Trash2 } from "lucide-react";
 import { Avatar, StatusBadge, useToast } from "@/components/internal";
 import { ClientService } from "@/lib/services/client.service";
 import { MeetingService, type MeetingWithNames } from "@/lib/services/meeting.service";
+import { BookForClient } from "./BookForClient";
 import { VisaService, type VisaWithDocs } from "@/lib/services/visa.service";
 import { supabase } from "@/lib/supabase";
 import {
@@ -36,6 +37,7 @@ interface ClientSheetProps {
  * fifty times a day fits in a thumb's reach.
  */
 export function ClientSheet({ client, staff, onClose, onChanged }: ClientSheetProps) {
+  const [bookingOpen, setBookingOpen] = useState(false);
   const toast = useToast();
   const [stage, setStage] = useState<ClientStage>("lead");
   const [meetings, setMeetings] = useState<MeetingWithNames[]>([]);
@@ -236,7 +238,17 @@ export function ClientSheet({ client, staff, onClose, onChanged }: ClientSheetPr
 
           {/* Meetings */}
           <section>
-            <h4 className="crm-section-title mb-2">Meetings</h4>
+            <div className="mb-2 flex items-center justify-between gap-3">
+              <h4 className="crm-section-title">Meetings</h4>
+              {/* Any staff member can book, mentor or not — the person taking a
+                  WhatsApp enquiry is usually not the one who takes the call. */}
+              <button
+                className="nx-btn nx-btn-ghost text-xs"
+                onClick={() => setBookingOpen(true)}
+              >
+                <CalendarPlus className="h-3.5 w-3.5" /> Book a mentor
+              </button>
+            </div>
             <div className="space-y-1.5">
               {meetings.length === 0 && (
                 <p className="text-sm" style={{ color: "var(--nx-faint)" }}>
@@ -372,6 +384,14 @@ export function ClientSheet({ client, staff, onClose, onChanged }: ClientSheetPr
           </section>
         </div>
       )}
+
+      <BookForClient
+        open={bookingOpen}
+        clientId={client?.id ?? null}
+        clientName={client?.full_name ?? ""}
+        onClose={() => setBookingOpen(false)}
+        onBooked={onChanged}
+      />
     </Sheet>
   );
 }

@@ -3,7 +3,10 @@
 // (and a today-wide read the admin will reuse in Phase 2).
 // =============================================================================
 
-import { supabase } from "@/lib/supabase";
+// Every query here is staff-only, so it must carry the signed-in staff JWT —
+// the anon client would run as role `anon` and is_staff()/is_admin() would
+// see nobody. Aliased so the body of this module reads unchanged.
+import { staffSupabase as supabase } from "@/lib/auth/supabase-staff";
 import type { AttendanceSession } from "@/lib/types/attendance";
 import { computeDurationMinutes, localDateKey } from "@/lib/attendance/compute";
 

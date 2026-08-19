@@ -150,6 +150,21 @@ export function StaffSection() {
     }
   }
 
+  /** Mentor is a capability, not a rank — an admin may mentor, a staff member
+   *  may not. Untick and they vanish from the student-facing list immediately
+   *  (public_mentors is filtered on it), though already-booked calls stand. */
+  async function toggleMentor(s: Staff) {
+    setBusyId(s.id);
+    try {
+      await StaffService.update(s.id, { is_mentor: !s.is_mentor });
+      await fetchAll();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : String(err));
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   async function toggleStatus(s: Staff) {
     setBusyId(s.id);
     try {
@@ -238,6 +253,7 @@ export function StaffSection() {
                 <th className="px-5 py-3">Staff</th>
                 <th className="px-5 py-3">Code</th>
                 <th className="px-5 py-3">Status</th>
+                <th className="px-5 py-3">Mentor</th>
                 <th className="px-5 py-3">Today</th>
                 <th className="px-5 py-3">Session</th>
                 <th className="px-5 py-3">Last login</th>
@@ -248,14 +264,14 @@ export function StaffSection() {
               {loading ? (
                 Array.from({ length: 4 }).map((_, i) => (
                   <tr key={i} className="border-t border-[var(--ad-border)]">
-                    <td colSpan={7} className="px-5 py-4">
+                    <td colSpan={8} className="px-5 py-4">
                       <div className="h-5 w-full animate-pulse rounded bg-[var(--ad-surface-hover)]" />
                     </td>
                   </tr>
                 ))
               ) : filtered.length === 0 ? (
                 <tr>
-                   <td colSpan={7} className="px-5 py-14 text-center text-[var(--ad-text-quaternary)] text-[13px]">
+                   <td colSpan={8} className="px-5 py-14 text-center text-[var(--ad-text-quaternary)] text-[13px]">
                     No staff found. Click “Add Staff” to create one.
                   </td>
                 </tr>
@@ -279,6 +295,15 @@ export function StaffSection() {
                       <td className="px-5 py-3">
                         <button onClick={() => toggleStatus(s)} disabled={busyId === s.id} title="Toggle status">
                           <Badge label={s.status === "active" ? "Active" : "Disabled"} tone={s.status === "active" ? "green" : "slate"} />
+                        </button>
+                      </td>
+                      <td className="px-5 py-3">
+                        <button
+                          onClick={() => toggleMentor(s)}
+                          disabled={busyId === s.id}
+                          title={s.is_mentor ? "Remove from the student mentor list" : "Let students book consultations with them"}
+                        >
+                          <Badge label={s.is_mentor ? "Mentor" : "—"} tone={s.is_mentor ? "amber" : "slate"} />
                         </button>
                       </td>
                       <td className="px-5 py-3 font-medium text-[var(--ad-text)]">{formatHm(att?.minutes ?? 0)}</td>

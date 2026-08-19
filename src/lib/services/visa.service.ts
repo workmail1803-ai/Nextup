@@ -2,7 +2,10 @@
 // VisaService — per-client visa record + its document checklist.
 // =============================================================================
 
-import { supabase } from "@/lib/supabase";
+// Every query here is staff-only, so it must carry the signed-in staff JWT —
+// the anon client would run as role `anon` and is_staff()/is_admin() would
+// see nobody. Aliased so the body of this module reads unchanged.
+import { staffSupabase as supabase } from "@/lib/auth/supabase-staff";
 import type {
   ClientVisa,
   VisaDocStatus,

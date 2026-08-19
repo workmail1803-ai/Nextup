@@ -2,10 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { ArrowRight, LoaderCircle, Mail, MailCheck } from "lucide-react";
+import { ArrowRight, Loader2, MailCheck } from "lucide-react";
 import { portalSupabase } from "@/lib/portal/supabase-portal";
-import { JOURNEY } from "@/components/crm/JourneyStrip";
 
 function GoogleGlyph() {
   return (
@@ -25,7 +23,6 @@ export default function PortalLoginPage() {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // If a session already exists (or lands via the OAuth redirect), go inside.
   useEffect(() => {
     const { data: sub } = portalSupabase.auth.onAuthStateChange((_e, session) => {
       if (session) router.replace("/portal");
@@ -44,7 +41,7 @@ export default function PortalLoginPage() {
       options: { redirectTo: `${window.location.origin}/portal` },
     });
     if (error) {
-      setError("Google sign-in isn't available right now. Try the email link below.");
+      setError("Google sign-in isn't switched on yet. Use the email link below.");
       setBusy(null);
     }
   }
@@ -53,7 +50,7 @@ export default function PortalLoginPage() {
     e.preventDefault();
     const trimmed = email.trim();
     if (!trimmed) {
-      setError("Enter the email your consultant has on file.");
+      setError("Enter the email address your consultant has on file.");
       return;
     }
     setBusy("email");
@@ -63,7 +60,7 @@ export default function PortalLoginPage() {
       options: { emailRedirectTo: `${window.location.origin}/portal` },
     });
     if (error) {
-      setError("Couldn't send the link. Check the email and try again.");
+      setError("That link didn't send. Check the address and try again.");
       setBusy(null);
       return;
     }
@@ -72,121 +69,108 @@ export default function PortalLoginPage() {
   }
 
   return (
-    <div className="flex min-h-[100dvh] items-center justify-center px-5 py-12">
-      <motion.div
-        className="w-full max-w-sm"
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-      >
-        <div className="crm-journey mx-auto mb-8 max-w-[11rem]">
-          {JOURNEY.map((s, i) => (
-            <motion.span
-              key={s}
-              data-lit
-              initial={{ scaleX: 0, opacity: 0 }}
-              animate={{ scaleX: 1, opacity: 1 }}
-              transition={{ delay: 0.15 + i * 0.07, duration: 0.3 }}
-              style={{ transformOrigin: "left" }}
-            />
-          ))}
-        </div>
-
-        <div className="crm-card p-7">
-          {sent ? (
-            <div className="text-center">
-              <div
-                className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl"
-                style={{ background: "var(--nx-positive-soft)", color: "var(--nx-positive)" }}
-              >
-                <MailCheck className="h-6 w-6" strokeWidth={1.9} />
-              </div>
-              <h1 className="nx-display mt-4 text-2xl font-semibold" style={{ color: "var(--nx-text)" }}>
-                Check your inbox
-              </h1>
-              <p className="mt-1.5 text-sm" style={{ color: "var(--nx-muted)" }}>
-                We sent a sign-in link to <span style={{ color: "var(--nx-text)" }}>{email}</span>. Open it on this device to continue.
-              </p>
-              <button
-                className="mt-5 text-sm font-medium"
-                style={{ color: "var(--nx-accent-2)" }}
-                onClick={() => {
-                  setSent(false);
-                  setEmail("");
-                }}
-              >
-                Use a different email
-              </button>
+    <div className="flex min-h-[100dvh] flex-col justify-center px-6 py-16">
+      <div className="mx-auto w-full max-w-[27rem]">
+        {sent ? (
+          <>
+            <div
+              className="flex h-11 w-11 items-center justify-center rounded-xl"
+              style={{ background: "var(--pf-approved-soft)", color: "var(--pf-approved)" }}
+            >
+              <MailCheck className="h-5 w-5" strokeWidth={1.9} />
             </div>
-          ) : (
-            <>
-              <h1 className="nx-display text-2xl font-semibold" style={{ color: "var(--nx-text)" }}>
-                Your journey, in your pocket
-              </h1>
-              <p className="mt-1.5 text-sm" style={{ color: "var(--nx-muted)" }}>
-                Track your progress, documents, and meetings. Sign in with the email your NextUp consultant has on file.
-              </p>
+            <h1 className="pf-display mt-5 text-[2rem]">Check your inbox.</h1>
+            <p className="mt-3 text-[0.9375rem] leading-relaxed" style={{ color: "var(--pf-vellum-2)" }}>
+              We sent a sign-in link to{" "}
+              <span className="pf-mono text-[0.875rem]" style={{ color: "var(--pf-vellum)" }}>
+                {email}
+              </span>
+              . Open it on this device.
+            </p>
+            <button
+              className="pf-mono mt-6 text-[0.8125rem]"
+              style={{ color: "var(--pf-seal)" }}
+              onClick={() => {
+                setSent(false);
+                setEmail("");
+              }}
+            >
+              Use a different address
+            </button>
+          </>
+        ) : (
+          <>
+            <p className="pf-label">NextUp Mentor</p>
+            <h1 className="pf-display mt-3 text-[2.35rem]">Your file, whenever you want it.</h1>
+            <p className="mt-3.5 text-[0.9375rem] leading-relaxed" style={{ color: "var(--pf-vellum-2)" }}>
+              Where your application has got to, which papers are still yours to send, and when you
+              next speak to your consultant. Sign in with the email address they have on file.
+            </p>
 
+            <button
+              className="pf-press mt-8 flex w-full items-center justify-center gap-2.5 rounded-xl py-3 text-sm font-semibold"
+              style={{ background: "var(--pf-vellum)", color: "#14181f" }}
+              onClick={withGoogle}
+              disabled={busy !== null}
+            >
+              {busy === "google" ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleGlyph />}
+              Continue with Google
+            </button>
+
+            <div className="my-6 flex items-center gap-4">
+              <span className="h-px flex-1" style={{ background: "var(--pf-rule)" }} />
+              <span className="pf-label">or</span>
+              <span className="h-px flex-1" style={{ background: "var(--pf-rule)" }} />
+            </div>
+
+            <form onSubmit={withEmail} noValidate>
+              <label htmlFor="portal-email" className="pf-label">
+                Email
+              </label>
+              <input
+                id="portal-email"
+                type="email"
+                inputMode="email"
+                autoComplete="email"
+                className="pf-input mt-2"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (error) setError(null);
+                }}
+                aria-invalid={!!error}
+                aria-describedby={error ? "portal-login-error" : undefined}
+              />
+              {error && (
+                <p id="portal-login-error" className="mt-3 text-sm" role="alert" style={{ color: "var(--pf-halt)" }}>
+                  {error}
+                </p>
+              )}
               <button
-                className="crm-press mt-6 flex w-full items-center justify-center gap-2.5 rounded-xl py-3 text-sm font-semibold"
-                style={{ background: "#fff", color: "#1f1f1f" }}
-                onClick={withGoogle}
+                type="submit"
+                className="pf-btn pf-btn-quiet pf-press mt-4 w-full py-3"
                 disabled={busy !== null}
               >
-                {busy === "google" ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <GoogleGlyph />}
-                Continue with Google
-              </button>
-
-              <div className="my-5 flex items-center gap-3">
-                <span className="h-px flex-1" style={{ background: "var(--nx-edge)" }} />
-                <span className="text-xs" style={{ color: "var(--nx-faint)" }}>or</span>
-                <span className="h-px flex-1" style={{ background: "var(--nx-edge)" }} />
-              </div>
-
-              <form onSubmit={withEmail}>
-                <label htmlFor="portal-email" className="nx-label">Email</label>
-                <div className="relative">
-                  <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2" style={{ color: "var(--nx-faint)" }} />
-                  <input
-                    id="portal-email"
-                    type="email"
-                    inputMode="email"
-                    autoComplete="email"
-                    className="nx-input pl-10"
-                    placeholder="you@example.com"
-                    value={email}
-                    onChange={(e) => {
-                      setEmail(e.target.value);
-                      if (error) setError(null);
-                    }}
-                    aria-invalid={!!error}
-                  />
-                </div>
-                {error && (
-                  <p className="mt-3 text-sm" style={{ color: "var(--nx-danger)" }} role="alert">
-                    {error}
-                  </p>
+                {busy === "email" ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" /> Sending
+                  </>
+                ) : (
+                  <>
+                    Email me a link <ArrowRight className="h-4 w-4" />
+                  </>
                 )}
-                <button type="submit" className="nx-btn nx-btn-ghost mt-4 w-full py-3" disabled={busy !== null}>
-                  {busy === "email" ? (
-                    <>
-                      <LoaderCircle className="h-4 w-4 animate-spin" /> Sending link…
-                    </>
-                  ) : (
-                    <>
-                      Email me a sign-in link <ArrowRight className="h-4 w-4" />
-                    </>
-                  )}
-                </button>
-              </form>
-            </>
-          )}
-        </div>
+              </button>
+            </form>
 
-        <p className="mt-4 text-center text-xs" style={{ color: "var(--nx-faint)" }}>
-          Trouble signing in? Message your NextUp consultant.
-        </p>
-      </motion.div>
+            <p className="mt-8 text-xs" style={{ color: "var(--pf-vellum-3)" }}>
+              Can&apos;t get in? Message your consultant on WhatsApp — they can check which address
+              is on your file.
+            </p>
+          </>
+        )}
+      </div>
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Plus, Receipt } from "lucide-react";
 import { AreaChart, useToast } from "@/components/internal";
 import { Sheet } from "@/components/crm/Sheet";
+import { RequireAdmin } from "@/components/crm/RequireAdmin";
 import { FinanceService } from "@/lib/services/finance.service";
 import {
   categoryBreakdown, dailyCumulative, formatBDT, monthKey, summarize,
@@ -11,7 +12,7 @@ import {
 import { localDateKey } from "@/lib/attendance/compute";
 import type { Budget, ExpenseCategory, ExpenseInsert, ExpenseWithCategory } from "@/lib/types/finance";
 
-export default function FinancePage() {
+function FinancePageInner() {
   const toast = useToast();
   const [expenses, setExpenses] = useState<ExpenseWithCategory[]>([]);
   const [categories, setCategories] = useState<ExpenseCategory[]>([]);
@@ -266,5 +267,14 @@ function LogExpenseSheet({
         </button>
       </form>
     </Sheet>
+  );
+}
+
+/** Finance is admin-only; RLS enforces it, this explains it. */
+export default function FinancePage() {
+  return (
+    <RequireAdmin>
+      <FinancePageInner />
+    </RequireAdmin>
   );
 }

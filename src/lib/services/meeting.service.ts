@@ -2,7 +2,10 @@
 // MeetingService — client meetings (each = one mentor at one time).
 // =============================================================================
 
-import { supabase } from "@/lib/supabase";
+// Every query here is staff-only, so it must carry the signed-in staff JWT —
+// the anon client would run as role `anon` and is_staff()/is_admin() would
+// see nobody. Aliased so the body of this module reads unchanged.
+import { staffSupabase as supabase } from "@/lib/auth/supabase-staff";
 import type {
   ClientMeeting,
   MeetingInsert,
@@ -66,5 +69,33 @@ export const MeetingService = {
   async remove(id: string): Promise<void> {
     const { error } = await supabase.from(TABLE).delete().eq("id", id);
     if (error) throw error;
+  },
+};
+
+// -----------------------------------------------------------------------------
+// A mentor's own consultation diary. Server-side join (migration 0019) rather
+// than three round-trips stitched in the browser.
+// -----------------------------------------------------------------------------
+
+export interface MentorMeeting {
+  appointment_id: string;
+  client_id: string | null;
+  client_name: string | null;
+  client_email: string | null;
+  client_whatsapp: string | null;
+  client_stage: string | null;
+  countries: string[] | null;
+  scheduled_at: string;
+  status: string;
+}
+
+export const MentorScheduleService = {
+  /** Upcoming consultations assigned to the signed-in mentor. */
+  async upcoming(daysAhead = 30): Promise<MentorMeeting[]> {
+    const { data, error } = await supabase.rpc("mentor_upcoming_meetings", {
+      p_days_ahead: daysAhead,
+    });
+    if (error) throw error;
+    return (data as MentorMeeting[]) ?? [];
   },
 };
