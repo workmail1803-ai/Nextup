@@ -326,9 +326,20 @@ export function StaffSection() {
                     <tr key={s.id} className="border-t border-[var(--ad-border)] hover:bg-[var(--ad-surface-hover)]">
                       <td className="px-5 py-3">
                         <div className="flex items-center gap-3">
-                          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--ad-accent-muted)] text-[11px] font-semibold text-[var(--ad-accent)]">
-                            {initials(s.full_name)}
-                          </span>
+                          {/* The photo staff set themselves in the CRM. Initials
+                              stay as the fallback so a missing one is never a gap. */}
+                          {s.avatar_url ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={s.avatar_url}
+                              alt=""
+                              className="h-8 w-8 shrink-0 rounded-full object-cover"
+                            />
+                          ) : (
+                            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--ad-accent-muted)] text-[11px] font-semibold text-[var(--ad-accent)]">
+                              {initials(s.full_name)}
+                            </span>
+                          )}
                           <div>
                             <p className="font-medium text-[var(--ad-text)] text-[13px]">{s.full_name}</p>
                             <p className="text-[11px] text-[var(--ad-text-quaternary)]">{s.title ?? "Staff"}</p>

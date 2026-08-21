@@ -1,15 +1,17 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   LayoutDashboard, FolderKanban, Users, Calendar, Wallet, CalendarClock,
-  Search, LogOut, ExternalLink, type LucideIcon,
+  Search, LogOut, ExternalLink, Camera, Loader2, Trash2, type LucideIcon,
 } from "lucide-react";
 import { Avatar } from "@/components/internal";
 import { useStaffAuth } from "@/lib/auth/StaffAuthContext";
+import { StaffAvatarService, AVATAR_ACCEPT } from "@/lib/services/staff.service";
+import { useToast } from "@/components/internal";
 import { Sheet } from "./Sheet";
 import { SearchOverlay } from "./SearchOverlay";
 
@@ -39,7 +41,10 @@ function isActive(pathname: string, href: string) {
 export function CrmShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { staff, isAdmin, isMentor, signOut: authSignOut } = useStaffAuth();
+  const { staff, isAdmin, isMentor, signOut: authSignOut, refresh } = useStaffAuth();
+  const toast = useToast();
+  const avatarInput = useRef<HTMLInputElement>(null);
+  const [avatarBusy, setAvatarBusy] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
 
@@ -63,6 +68,44 @@ export function CrmShell({ children }: { children: React.ReactNode }) {
   async function signOut() {
     await authSignOut();
     router.replace("/crm/login");
+  }
+
+  async function changeAvatar(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !staff?.id) return;
+    setAvatarBusy(true);
+    try {
+      await StaffAvatarService.upload(staff.id, file);
+      refresh();
+      toast({ title: "Photo updated", description: "Students booking with you will see it.", tone: "success" });
+    } catch (err) {
+      toast({
+        title: "Couldn't upload that",
+        description: err instanceof Error ? err.message : String(err),
+        tone: "error",
+      });
+    } finally {
+      setAvatarBusy(false);
+      if (avatarInput.current) avatarInput.current.value = "";
+    }
+  }
+
+  async function clearAvatar() {
+    if (!staff?.id) return;
+    setAvatarBusy(true);
+    try {
+      await StaffAvatarService.remove(staff.id, staff.avatar_url);
+      refresh();
+      toast({ title: "Photo removed", tone: "success" });
+    } catch (err) {
+      toast({
+        title: "Couldn't remove it",
+        description: err instanceof Error ? err.message : String(err),
+        tone: "error",
+      });
+    } finally {
+      setAvatarBusy(false);
+    }
   }
 
   return (
@@ -219,13 +262,47 @@ export function CrmShell({ children }: { children: React.ReactNode }) {
           <div className="pt-1">
             <div className="flex items-center gap-3.5">
               <Avatar name={session.fullName} src={session.avatarUrl} size="lg" />
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <p className="nx-display text-lg font-semibold" style={{ color: "var(--nx-text)" }}>
                   {session.fullName}
                 </p>
                 <p className="text-sm" style={{ color: "var(--nx-faint)" }}>
                   {session.title || "Staff"} · {session.staffCode}
                 </p>
+                <div className="mt-2 flex items-center gap-2">
+                  <input
+                    ref={avatarInput}
+                    type="file"
+                    accept={AVATAR_ACCEPT}
+                    className="hidden"
+                    onChange={changeAvatar}
+                    aria-label="Upload a profile photo"
+                  />
+                  <button
+                    className="nx-btn nx-btn-ghost text-xs"
+                    onClick={() => avatarInput.current?.click()}
+                    disabled={avatarBusy}
+                  >
+                    {avatarBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Camera className="h-3.5 w-3.5" />}
+                    {session.avatarUrl ? "Change photo" : "Add a photo"}
+                  </button>
+                  {session.avatarUrl && (
+                    <button
+                      className="crm-press flex h-7 w-7 items-center justify-center rounded-lg"
+                      style={{ color: "var(--nx-faint)" }}
+                      onClick={clearAvatar}
+                      disabled={avatarBusy}
+                      aria-label="Remove photo"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
+                {isMentor && (
+                  <p className="mt-1.5 text-[0.7rem]" style={{ color: "var(--nx-faint)" }}>
+                    Students see this when choosing a mentor, so it is public.
+                  </p>
+                )}
               </div>
             </div>
             <div className="mt-5 space-y-1.5">

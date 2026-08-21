@@ -94,3 +94,54 @@ export function generateStaffCode(prefix = "NX"): string {
   }
   return `${prefix}-${body}`;
 }
+
+// -----------------------------------------------------------------------------
+// Profile photos
+//
+// The bucket is PUBLIC on purpose: a mentor's photo appears on the anonymous
+// /book page, so a signed URL would be a slower public URL with extra steps.
+// Writes are still restricted to the owner (migration 0023).
+// -----------------------------------------------------------------------------
+
+const AVATAR_BUCKET = "staff-avatars";
+export const AVATAR_MAX_BYTES = 2 * 1024 * 1024; // matches the bucket limit
+export const AVATAR_ACCEPT = "image/jpeg,image/png,image/webp";
+
+export const StaffAvatarService = {
+  /**
+   * Upload (or replace) the signed-in staff member's photo and record the URL.
+   * A fixed filename per person means replacing does not leave the old file
+   * behind in a bucket nobody ever tidies.
+   */
+  async upload(staffId: string, file: File): Promise<string> {
+    if (file.size > AVATAR_MAX_BYTES) {
+      throw new Error("That image is over 2 MB. A normal phone photo is fine.");
+    }
+    const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
+    const path = `${staffId}/avatar.${ext || "jpg"}`;
+
+    const { error: upErr } = await supabase.storage
+      .from(AVATAR_BUCKET)
+      .upload(path, file, { upsert: true, contentType: file.type });
+    if (upErr) throw upErr;
+
+    // Cache-bust: the path is stable, so browsers would keep showing the old
+    // image after a replacement without this.
+    const base = supabase.storage.from(AVATAR_BUCKET).getPublicUrl(path).data.publicUrl;
+    const url = `${base}?v=${Date.now()}`;
+
+    const { error: rpcErr } = await supabase.rpc("staff_set_avatar", { p_url: url });
+    if (rpcErr) throw rpcErr;
+    return url;
+  },
+
+  /** Clear the photo, falling back to initials. */
+  async remove(staffId: string, currentUrl: string | null): Promise<void> {
+    if (currentUrl) {
+      const path = currentUrl.split(`/${AVATAR_BUCKET}/`)[1]?.split("?")[0];
+      if (path) await supabase.storage.from(AVATAR_BUCKET).remove([path]);
+    }
+    const { error } = await supabase.rpc("staff_set_avatar", { p_url: null });
+    if (error) throw error;
+  },
+};
