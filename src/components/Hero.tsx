@@ -185,7 +185,11 @@ export default function Hero() {
             transition={{ duration: 0.7, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
             className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center"
           >
-            <Button href="/contact" size="lg" withArrow>
+            {/* Goes to the booking window, not the contact form. A button that
+                says "book" should produce a booked time, not a message that
+                someone may reply to. The nav, footer and destination pages all
+                already pointed here. */}
+            <Button href="/book" size="lg" withArrow>
               Book a free consultation
             </Button>
             <Button href="/services" size="lg" variant="secondary">

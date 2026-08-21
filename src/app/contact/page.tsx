@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mail, Phone, Clock, CheckCircle2, Plus, MessageCircle } from "lucide-react";
+import { Mail, Phone, Clock, CheckCircle2, Plus, MessageCircle, ArrowRight } from "lucide-react";
 import { db } from "@/lib/supabase";
 import PageHero from "@/components/ui/PageHero";
 import Reveal from "@/components/ui/Reveal";
@@ -75,11 +76,28 @@ function ContactForm() {
     );
   }
 
+  // Most people arriving here want a time, not a reply. Booking is one tap and
+  // gives an answer immediately; a message waits on someone reading it.
   const inputCls =
     "w-full rounded-xl border border-line bg-surface px-4 py-3 text-ink placeholder-faint transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20";
 
   return (
     <form onSubmit={handleSubmit} className="card p-6 md:p-8">
+      <Link
+        href="/book"
+        className="mb-6 flex items-center justify-between gap-3 rounded-xl border border-accent/30 bg-accent-soft px-4 py-3.5 transition-colors hover:bg-accent-soft/70"
+      >
+        <span>
+          <span className="block text-sm font-semibold text-ink">
+            Want a time instead of a reply?
+          </span>
+          <span className="block text-[0.8rem] text-muted">
+            Pick a free 45-minute slot with a mentor — confirmed instantly.
+          </span>
+        </span>
+        <ArrowRight className="h-4 w-4 shrink-0 text-accent" />
+      </Link>
+
       <h2 className="font-display text-2xl font-semibold text-ink">Send us a message</h2>
       <p className="mt-1 text-sm text-muted">Tell us where you are in your journey.</p>
 
@@ -130,7 +148,7 @@ function ContactForm() {
         disabled={status === "submitting"}
         className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-ink py-4 font-semibold text-on-ink transition-[transform,background-color] hover:bg-[#2a241c] active:scale-[0.99] disabled:opacity-60"
       >
-        {status === "submitting" ? "Sending…" : "Request free consultation"}
+        {status === "submitting" ? "Sending…" : "Send message"}
       </button>
     </form>
   );
