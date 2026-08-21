@@ -236,9 +236,20 @@ export function StaffSection() {
     if (!confirmDelete) return;
     setBusyId(confirmDelete.id);
     try {
-      await StaffService.remove(confirmDelete.id);
+      // Through the server route, so their login is removed with the record.
+      // A direct table delete would leave them able to sign in to nothing.
+      const { data: sess } = await staffSupabase.auth.getSession();
+      const res = await fetch(`/api/admin/staff?id=${confirmDelete.id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${sess.session?.access_token ?? ""}` },
+      });
+      const payload = await res.json();
+      if (!res.ok) throw new Error(payload.error ?? "Could not remove them.");
       setConfirmDelete(null);
       await fetchAll();
+    } catch (e: unknown) {
+      setErr(e instanceof Error ? e.message : "Could not remove them.");
+      setConfirmDelete(null);
     } finally {
       setBusyId(null);
     }

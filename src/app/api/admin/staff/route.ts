@@ -134,3 +134,76 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ staff: staffRow });
 }
+
+// =============================================================================
+// DELETE /api/admin/staff?id=<staffId> — remove a staff member AND their login.
+//
+// This exists on the server for the same reason POST does: removing an auth
+// user needs the service key. Doing only half the job is what caused the
+// original fault — the staff row went, the login stayed, and that person could
+// sign in to nothing.
+//
+// Order matters. The auth user goes first; the foreign key nulls auth_user_id
+// on the staff row as a result, and only then is the row removed. If the second
+// step fails, what is left is a staff record with no login — visible, fixable,
+// and safe. The reverse order would leave a login with no record, which is the
+// failure we are removing.
+// =============================================================================
+
+export async function DELETE(req: NextRequest) {
+  const token = req.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
+  if (!token) return bad("Not signed in.", 401);
+
+  const asCaller = createClient(URL, ANON, {
+    global: { headers: { Authorization: `Bearer ${token}` } },
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+
+  const { data: isAdmin, error: roleErr } = await asCaller.rpc("is_admin");
+  if (roleErr) return bad("Could not verify your account.", 401);
+  if (!isAdmin) return bad("Admins only.", 403);
+
+  if (!SERVICE) {
+    return bad(
+      "Staff cannot be removed on this deployment yet: SUPABASE_SERVICE_KEY is not set.",
+      500,
+    );
+  }
+
+  // req.nextUrl, not `new URL(...)`: the module-level `URL` const shadows the
+  // global constructor.
+  const staffId = req.nextUrl.searchParams.get("id");
+  if (!staffId) return bad("Which staff member?");
+
+  // Refuse self-removal here as well as in the trigger, so the caller gets a
+  // sentence rather than a database error.
+  const { data: mine } = await asCaller.rpc("current_staff_id");
+  if (mine === staffId) {
+    return bad("You cannot remove your own account. Ask another admin to do it.", 400);
+  }
+
+  const admin = createClient(URL, SERVICE, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+
+  const { data: target, error: findErr } = await admin
+    .from("staff")
+    .select("id, full_name, auth_user_id")
+    .eq("id", staffId)
+    .maybeSingle();
+  if (findErr) return bad(findErr.message, 500);
+  if (!target) return bad("That staff member no longer exists.", 404);
+
+  if (target.auth_user_id) {
+    const { error: authErr } = await admin.auth.admin.deleteUser(target.auth_user_id);
+    // Already gone is fine — the point is that it is not there afterwards.
+    if (authErr && !/not found/i.test(authErr.message)) {
+      return bad(`Could not remove their login: ${authErr.message}`, 500);
+    }
+  }
+
+  const { error: delErr } = await admin.from("staff").delete().eq("id", staffId);
+  if (delErr) return bad(delErr.message, 400);
+
+  return NextResponse.json({ removed: target.full_name });
+}

@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FileText, Paperclip, CalendarDays, UserRound, type LucideIcon } from "lucide-react";
+import { FileText, Paperclip, CalendarDays, UserRound, Receipt, type LucideIcon } from "lucide-react";
+import { PortalNotifications } from "./PortalNotifications";
 import { usePortal } from "@/lib/portal/PortalContext";
 
 interface Tab {
@@ -14,6 +15,7 @@ const TABS: Tab[] = [
   { href: "/portal", label: "File", icon: FileText },
   { href: "/portal/documents", label: "Papers", icon: Paperclip },
   { href: "/portal/meetings", label: "Meetings", icon: CalendarDays },
+  { href: "/portal/receipts", label: "Receipts", icon: Receipt },
   { href: "/portal/profile", label: "You", icon: UserRound },
 ];
 
@@ -59,6 +61,8 @@ export function PortalShell({ children }: { children: React.ReactNode }) {
               Preview
             </span>
           )}
+
+          <PortalNotifications />
 
         </div>
       </header>
