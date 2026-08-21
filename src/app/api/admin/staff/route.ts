@@ -194,6 +194,29 @@ export async function DELETE(req: NextRequest) {
   if (findErr) return bad(findErr.message, 500);
   if (!target) return bad("That staff member no longer exists.", 404);
 
+  // Cancel their upcoming consultations FIRST.
+  //
+  // Two reasons. Practically, deleting the staff row cascades to their
+  // availability, and the guard from migration 0019 refuses to drop a window a
+  // student has booked — so without this the delete simply fails with a
+  // confusing message about consultation times.
+  //
+  // More importantly it is the honest outcome: a student who booked a call with
+  // someone who has left should see it cancelled, not silently lose the mentor
+  // from a meeting that still claims to be happening.
+  const { error: apErr } = await admin
+    .from("appointments")
+    .update({ status: "cancelled" })
+    .eq("assigned_mentor_id", staffId)
+    .in("status", ["pending", "assigned", "confirmed"]);
+  if (apErr) return bad(`Could not release their bookings: ${apErr.message}`, 500);
+
+  await admin
+    .from("client_meetings")
+    .update({ status: "cancelled" })
+    .eq("consultant_id", staffId)
+    .eq("status", "scheduled");
+
   if (target.auth_user_id) {
     const { error: authErr } = await admin.auth.admin.deleteUser(target.auth_user_id);
     // Already gone is fine — the point is that it is not there afterwards.
