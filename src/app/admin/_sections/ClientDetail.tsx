@@ -7,7 +7,9 @@ import {
 } from "lucide-react";
 import { MeetingService, type MeetingWithNames } from "@/lib/services/meeting.service";
 import { VisaService, type VisaWithDocs } from "@/lib/services/visa.service";
-import { supabase } from "@/lib/supabase";
+// Signing a client-document URL needs the staff JWT. The anon client lost
+// access to that bucket in migration 0012 and returns 400.
+import { staffSupabase } from "@/lib/auth/supabase-staff";
 import type { Staff } from "@/lib/types/staff";
 import type {
   ClientWithRelations, MeetingStatus, VisaDocStatus, VisaStatus,
@@ -254,7 +256,7 @@ export function ClientDetail({
                             className="flex items-center gap-1 rounded-md bg-amber-500/10 px-2 py-1 text-[11px] font-medium text-amber-400 hover:bg-amber-500/20"
                             onClick={async () => {
                               try {
-                                const url = await VisaService.getSignedUrl(supabase, d.file_url!, 3600);
+                                const url = await VisaService.getSignedUrl(staffSupabase, d.file_url!, 3600);
                                 window.open(url, "_blank");
                               } catch { /* silent */ }
                             }}

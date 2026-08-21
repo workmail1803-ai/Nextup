@@ -172,7 +172,7 @@ export default function PipelinePage() {
         })}
       </div>
 
-      <ClientSheet client={selected} staff={staff} onClose={() => setSelected(null)} onChanged={load} />
+      <ClientSheet client={selected} onClose={() => setSelected(null)} onChanged={load} />
     </div>
   );
 }

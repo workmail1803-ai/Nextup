@@ -185,7 +185,7 @@ function ClientsView() {
         )}
       </div>
 
-      <ClientSheet client={selected} staff={staff} onClose={closeSheet} onChanged={load} />
+      <ClientSheet client={selected} onClose={closeSheet} onChanged={load} />
 
       <NewClientSheet
         open={creating}

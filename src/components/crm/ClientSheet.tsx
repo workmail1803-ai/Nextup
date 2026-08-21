@@ -7,12 +7,13 @@ import { ClientService } from "@/lib/services/client.service";
 import { MeetingService, type MeetingWithNames } from "@/lib/services/meeting.service";
 import { BookForClient } from "./BookForClient";
 import { VisaService, type VisaWithDocs } from "@/lib/services/visa.service";
-import { supabase } from "@/lib/supabase";
+// Signing a client-document URL needs the staff JWT. The anon client lost
+// access to that bucket in migration 0012 and returns 400.
+import { staffSupabase } from "@/lib/auth/supabase-staff";
 import {
   DEGREE_META, MEETING_STATUS_META, STAGE_META, VISA_DOC_STATUS_META, VISA_STATUS_META,
   type ClientStage, type ClientWithRelations, type MeetingStatus, type VisaDocStatus, type VisaStatus,
 } from "@/lib/types/client";
-import type { Staff } from "@/lib/types/staff";
 import { Sheet } from "./Sheet";
 import { JourneyStrip } from "./JourneyStrip";
 
@@ -25,7 +26,6 @@ const miniInput = "nx-input px-2.5 py-1.5 text-xs";
 
 interface ClientSheetProps {
   client: ClientWithRelations | null;
-  staff: Staff[];
   onClose: () => void;
   /** Called after any successful mutation so the parent can refresh its lists. */
   onChanged: () => void;
@@ -36,7 +36,7 @@ interface ClientSheetProps {
  * meetings, and the visa checklist. Every workflow the counsellor repeats
  * fifty times a day fits in a thumb's reach.
  */
-export function ClientSheet({ client, staff, onClose, onChanged }: ClientSheetProps) {
+export function ClientSheet({ client, onClose, onChanged }: ClientSheetProps) {
   const [bookingOpen, setBookingOpen] = useState(false);
   const [newDocName, setNewDocName] = useState("");
   const [docBusy, setDocBusy] = useState(false);
@@ -79,30 +79,7 @@ export function ClientSheet({ client, staff, onClose, onChanged }: ClientSheetPr
   }
 
   // --- Meetings ---
-  const [mDate, setMDate] = useState("");
-  const [mConsultant, setMConsultant] = useState("");
 
-  async function addMeeting(e: React.FormEvent) {
-    e.preventDefault();
-    if (!client) return;
-    setBusy(true);
-    try {
-      await MeetingService.create({
-        client_id: client.id,
-        scheduled_at: mDate ? new Date(mDate).toISOString() : null,
-        consultant_id: mConsultant || client.primary_consultant_id || null,
-        status: "scheduled",
-      });
-      setMDate("");
-      toast({ title: "Meeting added", tone: "success" });
-      loadDetail();
-      onChanged();
-    } catch (err) {
-      toast({ title: "Couldn't add meeting", description: err instanceof Error ? err.message : String(err), tone: "error" });
-    } finally {
-      setBusy(false);
-    }
-  }
 
   async function setMeetingStatus(id: string, status: MeetingStatus) {
     try {
@@ -297,7 +274,7 @@ export function ClientSheet({ client, staff, onClose, onChanged }: ClientSheetPr
             <div className="space-y-1.5">
               {meetings.length === 0 && (
                 <p className="text-sm" style={{ color: "var(--nx-faint)" }}>
-                  No meetings yet — book the first one below.
+                  No meetings yet — use Book a mentor above.
                 </p>
               )}
               {meetings.map((m) => (
@@ -334,30 +311,7 @@ export function ClientSheet({ client, staff, onClose, onChanged }: ClientSheetPr
                 </div>
               ))}
             </div>
-            <form onSubmit={addMeeting} className="mt-2 flex gap-1.5">
-              <input
-                type="datetime-local"
-                className={`${miniInput} min-w-0 flex-1`}
-                value={mDate}
-                onChange={(e) => setMDate(e.target.value)}
-                aria-label="Meeting time"
-              />
-              <select
-                className={miniInput}
-                style={{ width: "8.5rem" }}
-                value={mConsultant}
-                onChange={(e) => setMConsultant(e.target.value)}
-                aria-label="Consultant"
-              >
-                <option value="">Consultant…</option>
-                {staff.map((s) => (
-                  <option key={s.id} value={s.id}>{s.full_name}</option>
-                ))}
-              </select>
-              <button className="nx-btn nx-btn-primary shrink-0 px-3 py-1.5" disabled={busy} aria-label="Add meeting">
-                <Plus className="h-4 w-4" />
-              </button>
-            </form>
+
           </section>
 
           {/* Visa file */}
@@ -410,7 +364,7 @@ export function ClientSheet({ client, staff, onClose, onChanged }: ClientSheetPr
                           style={{ color: "var(--nx-accent-2)", background: "var(--nx-accent-soft)" }}
                           onClick={async () => {
                             try {
-                              const url = await VisaService.getSignedUrl(supabase, d.file_url!, 3600);
+                              const url = await VisaService.getSignedUrl(staffSupabase, d.file_url!, 3600);
                               window.open(url, "_blank");
                             } catch { /* silent */ }
                           }}

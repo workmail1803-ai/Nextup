@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { AvailabilityModal } from "./AvailabilityModal";
 import { StaffService, generateStaffCode } from "@/lib/services/staff.service";
+import { staffSupabase } from "@/lib/auth/supabase-staff";
 import { AttendanceService } from "@/lib/services/attendance.service";
 import type { Staff, StaffStatus } from "@/lib/types/staff";
 import type { AttendanceSession } from "@/lib/types/attendance";
@@ -39,9 +40,32 @@ interface FormState {
   title: string;
   staff_code: string;
   status: StaffStatus;
+  /** Sign-in identity. Required on create — without it the person has a record
+   *  but no way in, which is how every account until now had to be made by hand. */
+  email: string;
+  password: string;
+  role: "admin" | "staff";
+  is_mentor: boolean;
 }
 
-const EMPTY_FORM: FormState = { full_name: "", title: "", staff_code: "", status: "active" };
+const EMPTY_FORM: FormState = {
+  full_name: "", title: "", staff_code: "", status: "active",
+  email: "", password: "", role: "staff", is_mentor: false,
+};
+
+/**
+ * Passwords a person has to read off a screen and type on a phone. Excludes
+ * l/1/I/O/0 and anything needing a shift chord — the admin password generated
+ * earlier was rejected repeatedly by a colleague purely because it contained a
+ * lowercase L next to digits.
+ */
+function suggestPassword(): string {
+  const words = ["harbour", "lantern", "meadow", "compass", "ginger", "rocket",
+                 "velvet", "cobalt", "summit", "pebble", "tundra", "quartz"];
+  const pick = () => words[Math.floor(Math.random() * words.length)];
+  const n = Math.floor(Math.random() * 90) + 10;
+  return `${pick()}-${pick()}-${n}`;
+}
 
 export function StaffSection() {
   const [staff, setStaff] = useState<Staff[]>([]);
@@ -116,7 +140,9 @@ export function StaffSection() {
     setModalOpen(true);
   }
   function openEdit(s: Staff) {
-    setForm({ id: s.id, full_name: s.full_name, title: s.title ?? "", staff_code: s.staff_code, status: s.status });
+    setForm({ id: s.id, full_name: s.full_name, title: s.title ?? "", staff_code: s.staff_code,
+              status: s.status, email: s.email ?? "", password: "",
+              role: s.role ?? "staff", is_mentor: !!s.is_mentor });
     setModalOpen(true);
   }
 
@@ -131,20 +157,38 @@ export function StaffSection() {
           title: form.title.trim() || null,
           staff_code: form.staff_code.trim().toUpperCase(),
           status: form.status,
+          role: form.role,
+          is_mentor: form.is_mentor,
         });
       } else {
-        await StaffService.create({
-          full_name: form.full_name.trim(),
-          title: form.title.trim() || null,
-          staff_code: form.staff_code.trim().toUpperCase(),
-          status: form.status,
+        // Creating a login needs the Admin API and the service key, which the
+        // browser must never hold — so this goes through a server route that
+        // re-checks the caller is an admin before it touches anything.
+        const { data: sess } = await staffSupabase.auth.getSession();
+        const res = await fetch("/api/admin/staff", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${sess.session?.access_token ?? ""}`,
+          },
+          body: JSON.stringify({
+            full_name: form.full_name.trim(),
+            email: form.email.trim(),
+            password: form.password,
+            role: form.role,
+            title: form.title.trim() || null,
+            staff_code: form.staff_code.trim().toUpperCase() || undefined,
+            is_mentor: form.is_mentor,
+          }),
         });
+        const payload = await res.json();
+        if (!res.ok) throw new Error(payload.error ?? "Could not create the account.");
       }
       setModalOpen(false);
       await fetchAll();
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Save failed";
-      setErr(msg.includes("duplicate") ? "That staff code is already taken." : "Could not save staff.");
+      setErr(msg.includes("duplicate") ? "That staff code is already taken." : msg);
     } finally {
       setSaving(false);
     }
@@ -371,6 +415,72 @@ export function StaffSection() {
               </button>
             </div>
           </div>
+          <div>
+            <label className={label}>Email (this is their username)</label>
+            <input
+              className={input}
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              placeholder="name@nextupmentor.com"
+              disabled={!!form.id}
+              required={!form.id}
+            />
+            <p className="mt-1 text-[11px] text-[var(--ad-text-quaternary)]">
+              {form.id
+                ? "Changing a sign-in address would unlink their account, so it is fixed here."
+                : "They sign in with the part before the @ if it is a nextupmentor.com address."}
+            </p>
+          </div>
+
+          {!form.id && (
+            <div>
+              <label className={label}>Starting password</label>
+              <div className="flex gap-2">
+                <input
+                  className={input}
+                  value={form.password}
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  placeholder="At least 10 characters"
+                  required
+                />
+                <button
+                  type="button"
+                  className={btnGhost}
+                  onClick={() => setForm({ ...form, password: suggestPassword() })}
+                  title="Suggest one"
+                >
+                  <KeyRound className="h-4 w-4" /> Suggest
+                </button>
+              </div>
+              <p className="mt-1 text-[11px] text-[var(--ad-text-quaternary)]">
+                Give it to them directly and ask them to change it. Suggested passwords avoid
+                characters that are easy to misread, like l and 1.
+              </p>
+            </div>
+          )}
+
+          <div>
+            <label className={label}>Access level</label>
+            <select
+              className={input}
+              value={form.role}
+              onChange={(e) => setForm({ ...form, role: e.target.value as "admin" | "staff" })}
+            >
+              <option value="staff">Staff — clients, bookings, no finance</option>
+              <option value="admin">Admin — everything, including finance</option>
+            </select>
+          </div>
+
+          <label className="flex items-center gap-2.5 text-[13px] text-[var(--ad-text-secondary)]">
+            <input
+              type="checkbox"
+              checked={form.is_mentor}
+              onChange={(e) => setForm({ ...form, is_mentor: e.target.checked })}
+            />
+            Students can book consultations with them
+          </label>
+
           <div>
             <label className={label}>Status</label>
             <select className={input} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as StaffStatus })}>
