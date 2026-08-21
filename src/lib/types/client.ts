@@ -91,6 +91,10 @@ export interface VisaDocumentItem {
   status: VisaDocStatus;
   note: string | null;
   file_url: string | null;
+  /** False = part of the standard embassy checklist. True = added by staff for
+   *  this student specifically, and labelled as such in their portal. */
+  is_custom: boolean;
+  added_by_staff_id: string | null;
   sort_order: number;
   created_at: string;
   updated_at: string;

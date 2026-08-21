@@ -100,18 +100,43 @@ export const VisaService = {
     return data as VisaDocumentItem;
   },
 
-  async addDocument(visaId: string, name: string, sortOrder: number): Promise<VisaDocumentItem> {
-    const { data, error } = await supabase
-      .from("visa_document_items")
-      .insert({ visa_id: visaId, document_name: name, sort_order: sortOrder })
-      .select()
-      .single();
+  /**
+   * Add a requirement beyond the standard checklist — a police clearance, a
+   * birth certificate, whatever a particular embassy has asked for.
+   *
+   * Goes through the RPC rather than a plain insert so the row is stamped
+   * is_custom + added_by_staff_id. The student's portal shows that distinction:
+   * being asked for something off-list without explanation reads as invented.
+   */
+  async addDocument(visaId: string, name: string, note?: string): Promise<string> {
+    const { data, error } = await supabase.rpc("staff_add_visa_document", {
+      p_visa_id: visaId,
+      p_name: name,
+      p_note: note ?? null,
+    });
     if (error) throw error;
-    return data as VisaDocumentItem;
+    return data as string;
   },
 
-  async removeDocument(id: string): Promise<void> {
-    const { error } = await supabase.from("visa_document_items").delete().eq("id", id);
+  /**
+   * Remove a requirement.
+   *
+   * If the student already uploaded something, the file is deleted from storage
+   * FIRST. The database refuses to drop a row that still points at a file —
+   * otherwise their passport scan would sit in the bucket with nothing
+   * referencing it: unreachable, unauditable, and still their passport.
+   */
+  async removeDocument(id: string, fileUrl?: string | null): Promise<void> {
+    if (fileUrl) {
+      const { error: rmErr } = await supabase.storage.from(BUCKET).remove([fileUrl]);
+      if (rmErr) throw rmErr;
+      const { error: clearErr } = await supabase
+        .from("visa_document_items")
+        .update({ file_url: null })
+        .eq("id", id);
+      if (clearErr) throw clearErr;
+    }
+    const { error } = await supabase.rpc("staff_remove_visa_document", { p_doc_id: id });
     if (error) throw error;
   },
 

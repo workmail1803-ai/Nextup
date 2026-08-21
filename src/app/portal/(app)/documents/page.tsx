@@ -161,6 +161,20 @@ function DocRow({
       <div className="flex items-center gap-3">
         <div className="min-w-0 flex-1">
           <p className="text-[0.875rem] leading-snug">{doc.document_name}</p>
+          {/* Named, not hidden. A student who knows the standard list will
+              wonder why they are being asked for something extra; saying who
+              asked is the difference between a requirement and a suspicion. */}
+          {doc.is_custom && (
+            <p className="pf-mono mt-0.5 text-[0.6rem] uppercase tracking-wider"
+               style={{ color: "var(--pf-seal)" }}>
+              Asked for by your consultant
+            </p>
+          )}
+          {doc.note && (
+            <p className="mt-0.5 text-[0.7rem] leading-snug" style={{ color: "var(--pf-vellum-3)" }}>
+              {doc.note}
+            </p>
+          )}
           <div className="mt-1 flex items-center gap-2.5">
             {showStatus && (
               <span className="pf-status" data-tone={ui.tone}>

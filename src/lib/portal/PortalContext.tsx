@@ -17,6 +17,11 @@ export interface VisaDoc {
   status: "pending" | "received" | "verified" | "na";
   file_url: string | null;
   sort_order: number;
+  /** True when a consultant added this beyond the standard checklist. Shown to
+   *  the student, because being asked for something off-list without a reason
+   *  reads as an invented requirement. */
+  is_custom: boolean;
+  note: string | null;
 }
 export interface PortalVisa {
   status: "not_started" | "collecting" | "ready" | "submitted" | "approved" | "rejected";
@@ -140,7 +145,7 @@ export function PortalProvider({ children }: { children: React.ReactNode }) {
     }
     const [meetingsRes, visaRes, mentorRes] = await Promise.all([
       staffSupabase.from("client_meetings").select("*").eq("client_id", id).order("scheduled_at", { ascending: false }),
-      staffSupabase.from("client_visa").select("status, vfs_appointment_date, documents:visa_document_items(id, document_name, status, file_url, sort_order)").eq("client_id", id).maybeSingle(),
+      staffSupabase.from("client_visa").select("status, vfs_appointment_date, documents:visa_document_items(id, document_name, status, file_url, sort_order, is_custom, note)").eq("client_id", id).maybeSingle(),
       (record as Client).primary_consultant_id
         ? staffSupabase.from("public_mentors").select("*").eq("id", (record as Client).primary_consultant_id).maybeSingle()
         : Promise.resolve({ data: null }),
@@ -210,7 +215,7 @@ export function PortalProvider({ children }: { children: React.ReactNode }) {
     }
     const [meetingsRes, visaRes, mentorRes] = await Promise.all([
       portalSupabase.from("client_meetings").select("*").eq("client_id", record.id).order("scheduled_at", { ascending: false }),
-      portalSupabase.from("client_visa").select("status, vfs_appointment_date, documents:visa_document_items(id, document_name, status, file_url, sort_order)").eq("client_id", record.id).maybeSingle(),
+      portalSupabase.from("client_visa").select("status, vfs_appointment_date, documents:visa_document_items(id, document_name, status, file_url, sort_order, is_custom, note)").eq("client_id", record.id).maybeSingle(),
       record.primary_consultant_id
         ? portalSupabase.from("public_mentors").select("*").eq("id", record.primary_consultant_id).maybeSingle()
         : Promise.resolve({ data: null }),

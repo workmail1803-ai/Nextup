@@ -38,6 +38,8 @@ interface ClientSheetProps {
  */
 export function ClientSheet({ client, staff, onClose, onChanged }: ClientSheetProps) {
   const [bookingOpen, setBookingOpen] = useState(false);
+  const [newDocName, setNewDocName] = useState("");
+  const [docBusy, setDocBusy] = useState(false);
   const toast = useToast();
   const [stage, setStage] = useState<ClientStage>("lead");
   const [meetings, setMeetings] = useState<MeetingWithNames[]>([]);
@@ -151,6 +153,49 @@ export function ClientSheet({ client, staff, onClose, onChanged }: ClientSheetPr
       loadDetail();
     } catch (err) {
       toast({ title: "Couldn't update document", description: err instanceof Error ? err.message : String(err), tone: "error" });
+    }
+  }
+
+  /** Add a requirement beyond the standard checklist. Marked as staff-added, so
+   *  the student's portal can say who asked for it rather than leaving them to
+   *  wonder why the list grew. */
+  async function addDoc() {
+    if (!visa || newDocName.trim().length < 2) return;
+    setDocBusy(true);
+    try {
+      await VisaService.addDocument(visa.id, newDocName.trim());
+      setVisa(await VisaService.getForClient(client!.id));
+      setNewDocName("");
+      toast({ title: "Requirement added", description: "The student can see it now.", tone: "success" });
+    } catch (err) {
+      toast({
+        title: "Couldn't add that",
+        description: err instanceof Error ? err.message : String(err),
+        tone: "error",
+      });
+    } finally {
+      setDocBusy(false);
+    }
+  }
+
+  async function removeDoc(id: string, name: string, fileUrl: string | null) {
+    const warn = fileUrl
+      ? `Remove "${name}"? The student's uploaded file will be deleted too.`
+      : `Remove "${name}" from this checklist?`;
+    if (!confirm(warn)) return;
+    setDocBusy(true);
+    try {
+      await VisaService.removeDocument(id, fileUrl);
+      setVisa(await VisaService.getForClient(client!.id));
+      toast({ title: "Requirement removed", tone: "success" });
+    } catch (err) {
+      toast({
+        title: "Couldn't remove that",
+        description: err instanceof Error ? err.message : String(err),
+        tone: "error",
+      });
+    } finally {
+      setDocBusy(false);
     }
   }
 
@@ -349,6 +394,15 @@ export function ClientSheet({ client, staff, onClose, onChanged }: ClientSheetPr
                     <div key={d.id} className="flex items-center gap-2 rounded-lg px-2.5 py-1.5" style={{ background: "var(--nx-panel-2)" }}>
                       <span className="min-w-0 flex-1 truncate text-xs" style={{ color: "var(--nx-text)" }}>
                         {d.document_name}
+                        {d.is_custom && (
+                          <span
+                            className="ml-1.5 rounded px-1 py-0.5 text-[0.55rem] font-bold uppercase tracking-wider"
+                            style={{ background: "var(--nx-accent-soft)", color: "var(--nx-accent-2)" }}
+                            title="Added by staff, not part of the standard checklist"
+                          >
+                            Added
+                          </span>
+                        )}
                       </span>
                       {d.file_url && (
                         <button
@@ -376,8 +430,38 @@ export function ClientSheet({ client, staff, onClose, onChanged }: ClientSheetPr
                           <option key={s} value={s}>{VISA_DOC_STATUS_META[s].label}</option>
                         ))}
                       </select>
+                      <button
+                        className="crm-press flex h-6 w-6 shrink-0 items-center justify-center rounded-md"
+                        style={{ color: "var(--nx-faint)" }}
+                        onClick={() => removeDoc(d.id, d.document_name, d.file_url)}
+                        disabled={docBusy}
+                        aria-label={`Remove ${d.document_name}`}
+                        title="Remove this requirement"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
                     </div>
                   ))}
+
+                  {/* Add a requirement */}
+                  <div className="flex items-center gap-2 pt-1.5">
+                    <input
+                      className={miniInput}
+                      style={{ flex: 1 }}
+                      placeholder="Add a requirement, e.g. Police clearance"
+                      value={newDocName}
+                      onChange={(e) => setNewDocName(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && addDoc()}
+                      aria-label="New document requirement"
+                    />
+                    <button
+                      className="nx-btn nx-btn-ghost text-xs"
+                      onClick={addDoc}
+                      disabled={docBusy || newDocName.trim().length < 2}
+                    >
+                      <Plus className="h-3.5 w-3.5" /> Add
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
