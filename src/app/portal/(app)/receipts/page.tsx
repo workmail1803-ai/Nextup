@@ -15,6 +15,7 @@ import { usePortal } from "@/lib/portal/PortalContext";
 import {
   ReceiptDocument, money, formatIssued, type ReceiptLine,
 } from "@/components/receipt/ReceiptDocument";
+import { ReceiptCapture } from "@/components/receipt/ReceiptCapture";
 
 interface Row {
   id: string;
@@ -151,7 +152,6 @@ export default function PortalReceipts() {
           >
             <div style={{ width: 1000, transform: "scale(0.33)", transformOrigin: "top left", height: 707 * 0.33 }}>
               <ReceiptDocument
-                ref={docRef}
                 data={{
                   receipt_no: open.receipt_no,
                   doc_title: open.doc_title,
@@ -171,6 +171,26 @@ export default function PortalReceipts() {
               />
             </div>
           </div>
+          {/* Off-screen, unscaled — this is what the PDF is made from. */}
+          <ReceiptCapture
+            ref={docRef}
+            data={{
+              receipt_no: open.receipt_no,
+              doc_title: open.doc_title,
+              company_name: open.company_name,
+              issued_to_name: open.issued_to_name,
+              issued_to_email: open.issued_to_email,
+              issued_on: open.issued_on,
+              currency: open.currency,
+              items: open.items ?? [],
+              subtotal_minor: open.subtotal_minor,
+              discount_minor: open.discount_minor,
+              paid_minor: open.paid_minor,
+              payment_method: open.payment_method,
+              transaction_id: open.transaction_id,
+              footer_note: open.footer_note,
+            }}
+          />
           <button className="pf-btn pf-btn-seal pf-press mt-3 w-full py-3" onClick={download} disabled={busy}>
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
             Save as PDF

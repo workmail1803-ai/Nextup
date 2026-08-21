@@ -3,9 +3,14 @@
 // =============================================================================
 // ReceiptBuilder — staff issue a receipt, with a live preview of the document.
 //
-// The preview is the real component at 1000x707, scaled down by CSS transform
-// rather than reflowed. What the staff member sees is exactly what the student
-// and the PDF will show, because it is the same element.
+// TWO copies of the document are mounted, deliberately:
+//   * the visible preview, scaled by CSS transform so 1000px fits the sheet
+//   * an off-screen unscaled copy (ReceiptCapture) that the PDF is made from
+//
+// They cannot be one element. html2canvas measures geometry through
+// getBoundingClientRect, which reports the SCALED box while the element's own
+// styles are still at natural size — the two disagree and the output collapses
+// into overlapping text. Same data, same component, different frame.
 // =============================================================================
 
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -15,6 +20,7 @@ import { Sheet } from "./Sheet";
 import {
   ReceiptDocument, type ReceiptLine, money,
 } from "@/components/receipt/ReceiptDocument";
+import { ReceiptCapture } from "@/components/receipt/ReceiptCapture";
 import { ReceiptService, receiptToPdf, toMinor } from "@/lib/services/receipt.service";
 import { db, type Package } from "@/lib/supabase";
 
@@ -184,9 +190,12 @@ export function ReceiptBuilder({
           style={{ border: "1px solid var(--nx-edge)", background: "#fff", height: 707 * 0.36 }}
         >
           <div style={{ transform: "scale(0.36)", transformOrigin: "top left", width: 1000, height: 707 }}>
-            <ReceiptDocument ref={docRef} data={preview} />
+            <ReceiptDocument data={preview} />
           </div>
         </div>
+
+        {/* Off-screen, unscaled — this is what the PDF is made from. */}
+        <ReceiptCapture ref={docRef} data={preview} />
 
         {!issuedNo && (
           <>

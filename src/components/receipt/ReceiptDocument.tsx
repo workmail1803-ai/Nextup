@@ -118,27 +118,31 @@ export const ReceiptDocument = forwardRef<HTMLDivElement, { data: ReceiptData }>
           {/* Lines */}
           <div style={{ marginTop: 38 }}>
             <div style={{ ...row, paddingBottom: 12, borderBottom: `2px solid ${NAVY}`, fontSize: 12, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: INK }}>
-              <span>Description</span>
-              <span style={{ textAlign: "right" }}>Price</span>
-              <span style={{ textAlign: "right" }}>Total</span>
+              <span style={colDesc}>Description</span>
+              <span style={colNum}>Price</span>
+              <span style={colNum}>Total</span>
             </div>
             <div style={{ borderBottom: `1px solid ${LINE}` }}>
               {data.items.map((it, i) =>
                 it.is_sub ? (
                   <div key={i} style={{ ...row, padding: "0 0 18px" }}>
-                    <span style={{ fontSize: 14.5, color: MUTED, fontWeight: 500 }}>{it.description}</span>
-                    <span style={{ visibility: "hidden" }} />
-                    <span style={{ textAlign: "right", fontSize: 14.5, color: MUTED, fontWeight: 600 }}>
+                    <span style={{ ...colDesc, fontSize: 14.5, color: MUTED, fontWeight: 500 }}>
+                      {it.description}
+                    </span>
+                    <span style={colNum} />
+                    <span style={{ ...colNum, fontSize: 14.5, color: MUTED, fontWeight: 600 }}>
                       {money(it.price_minor, data.currency)}
                     </span>
                   </div>
                 ) : (
                   <div key={i} style={{ ...row, padding: "16px 0" }}>
-                    <span style={{ fontSize: 23, fontWeight: 700, color: INK }}>{it.description}</span>
-                    <span style={{ textAlign: "right", fontSize: 21, fontWeight: 700, color: INK }}>
+                    <span style={{ ...colDesc, fontSize: 23, fontWeight: 700, color: INK }}>
+                      {it.description}
+                    </span>
+                    <span style={{ ...colNum, fontSize: 21, fontWeight: 700, color: INK }}>
                       {money(it.price_minor, data.currency)}
                     </span>
-                    <span style={{ textAlign: "right", fontSize: 21, fontWeight: 700, color: INK }}>
+                    <span style={{ ...colNum, fontSize: 21, fontWeight: 700, color: INK }}>
                       {money(it.price_minor, data.currency)}
                     </span>
                   </div>
@@ -187,9 +191,14 @@ export const ReceiptDocument = forwardRef<HTMLDivElement, { data: ReceiptData }>
   },
 );
 
+// Flex, not grid. html2canvas (used for the PDF) does not implement grid track
+// sizing — a grid row rasterises as every cell stacked at the same position,
+// which is what turned the first PDFs into overlapping text.
 const row: React.CSSProperties = {
-  display: "grid", gridTemplateColumns: "1fr 170px 170px", alignItems: "center", gap: 16,
+  display: "flex", alignItems: "center", gap: 16,
 };
+const colDesc: React.CSSProperties = { flex: "1 1 auto", minWidth: 0 };
+const colNum: React.CSSProperties = { flex: "0 0 170px", textAlign: "right" };
 const label: React.CSSProperties = {
   fontSize: 11.5, fontWeight: 700, letterSpacing: "0.16em", color: MUTED,
   textTransform: "uppercase", marginBottom: 6,

@@ -140,12 +140,40 @@ export async function receiptToPdf(node: HTMLElement, filename: string): Promise
     import("jspdf"),
   ]);
 
-  // scale 2 keeps the type crisp when the PDF is opened at full size or printed.
-  const canvas = await html2canvas(node, { scale: 2, backgroundColor: "#ffffff", useCORS: true });
-  const img = canvas.toDataURL("image/png");
+  // The logo and watermark must be decoded before the snapshot, or they are
+  // simply absent from it — html2canvas does not wait for pending image loads.
+  const imgs = Array.from(node.querySelectorAll("img"));
+  await Promise.all(
+    imgs.map((img) =>
+      img.complete
+        ? Promise.resolve()
+        : new Promise<void>((resolve) => {
+            img.addEventListener("load", () => resolve(), { once: true });
+            img.addEventListener("error", () => resolve(), { once: true });
+          }),
+    ),
+  );
+  // Web fonts too: capturing mid-swap renders the fallback face.
+  if (document.fonts?.ready) await document.fonts.ready;
 
-  // Landscape, sized to the document rather than a paper standard, so nothing
-  // is cropped or letterboxed.
+  const canvas = await html2canvas(node, {
+    scale: 2,                 // crisp when opened full size or printed
+    backgroundColor: "#ffffff",
+    useCORS: true,
+    // Pinned explicitly. Left to infer, html2canvas reads the live viewport and
+    // can lay the clone out at a different width than the document was designed
+    // for, which shifts every column.
+    width: 1000,
+    height: 707,
+    windowWidth: 1000,
+    windowHeight: 707,
+    scrollX: 0,
+    scrollY: 0,
+  });
+
+  const img = canvas.toDataURL("image/png");
+  // Sized to the document rather than a paper standard, so nothing is cropped
+  // or letterboxed.
   const pdf = new jsPDF({ orientation: "landscape", unit: "px", format: [1000, 707] });
   pdf.addImage(img, "PNG", 0, 0, 1000, 707);
   pdf.save(filename);
