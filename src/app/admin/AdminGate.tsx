@@ -62,8 +62,40 @@ export function AdminGate({ children }: { children: React.ReactNode }) {
 
   if (status === "ready" && isAdmin) return <>{children}</>;
 
-  // "no-staff-record" lands here too: signing in again is the right next step,
-  // since the fix is an admin attaching that email to a staff row.
+  // Signed in, but no staff record carries this email.
+  //
+  // This used to fall through to the login form, which meant a correct sign-in
+  // silently redisplayed the same screen — indistinguishable from a rejected
+  // password, and impossible for the person to diagnose. It happens for real:
+  // deleting someone from the Staff table leaves their login working but
+  // unattached. Say so.
+  if (status === "no-staff-record") {
+    return (
+      <Frame>
+        <div
+          className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg"
+          style={{ background: "var(--ad-bg-raised)", color: "var(--ad-text-tertiary)" }}
+        >
+          <ShieldAlert className="h-5 w-5" />
+        </div>
+        <h1 className="text-[15px] font-semibold text-[var(--ad-text)] mb-1">
+          Your sign-in worked, but there is no staff record
+        </h1>
+        <p className="text-[13px] text-[var(--ad-text-tertiary)] mb-5">
+          {session?.user?.email} is a valid login, but no active staff member uses that address —
+          usually because the record was removed. Another admin needs to add it back before you can
+          get in. Signing in again will not help.
+        </p>
+        <button
+          onClick={() => void signOut()}
+          className="w-full py-2.5 bg-[var(--ad-accent)] text-white rounded-lg text-[13px] font-medium hover:bg-[var(--ad-accent-hover)] transition-colors"
+        >
+          Sign out
+        </button>
+      </Frame>
+    );
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitting(true);
