@@ -25,10 +25,9 @@ function bad(message: string, status = 400) {
 }
 
 export async function POST(req: NextRequest) {
-  if (!SERVICE) {
-    return bad("SUPABASE_SERVICE_KEY is not configured on the server.", 500);
-  }
-
+  // Authorisation is checked BEFORE anything about server configuration is
+  // reported. Answering "the service key is missing" to an anonymous caller
+  // tells a stranger how this deployment is set up, for no benefit.
   const token = req.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
   if (!token) return bad("Not signed in.", 401);
 
@@ -41,6 +40,14 @@ export async function POST(req: NextRequest) {
   const { data: isAdmin, error: roleErr } = await asCaller.rpc("is_admin");
   if (roleErr) return bad("Could not verify your account.", 401);
   if (!isAdmin) return bad("Admins only.", 403);
+
+  if (!SERVICE) {
+    return bad(
+      "Staff logins can't be created on this deployment yet: SUPABASE_SERVICE_KEY " +
+        "is not set. Add it in your hosting provider's environment variables.",
+      500,
+    );
+  }
 
   // 2. Validate the request.
   let body: {
