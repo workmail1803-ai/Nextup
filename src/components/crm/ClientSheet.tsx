@@ -1,11 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { CalendarPlus, ExternalLink, GraduationCap, Mail, MessageSquare, Phone, Plane, Plus, Trash2 } from "lucide-react";
+import { CalendarPlus, Receipt, ExternalLink, GraduationCap, Mail, MessageSquare, Phone, Plane, Plus, Trash2 } from "lucide-react";
 import { Avatar, StatusBadge, useToast } from "@/components/internal";
 import { ClientService } from "@/lib/services/client.service";
 import { MeetingService, type MeetingWithNames } from "@/lib/services/meeting.service";
 import { BookForClient } from "./BookForClient";
+import { ReceiptBuilder } from "./ReceiptBuilder";
 import { VisaService, type VisaWithDocs } from "@/lib/services/visa.service";
 // Signing a client-document URL needs the staff JWT. The anon client lost
 // access to that bucket in migration 0012 and returns 400.
@@ -38,6 +39,7 @@ interface ClientSheetProps {
  */
 export function ClientSheet({ client, onClose, onChanged }: ClientSheetProps) {
   const [bookingOpen, setBookingOpen] = useState(false);
+  const [receiptOpen, setReceiptOpen] = useState(false);
   const [newDocName, setNewDocName] = useState("");
   const [docBusy, setDocBusy] = useState(false);
   const toast = useToast();
@@ -264,12 +266,20 @@ export function ClientSheet({ client, onClose, onChanged }: ClientSheetProps) {
               <h4 className="crm-section-title">Meetings</h4>
               {/* Any staff member can book, mentor or not — the person taking a
                   WhatsApp enquiry is usually not the one who takes the call. */}
-              <button
-                className="nx-btn nx-btn-ghost text-xs"
-                onClick={() => setBookingOpen(true)}
-              >
-                <CalendarPlus className="h-3.5 w-3.5" /> Book a mentor
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  className="nx-btn nx-btn-ghost text-xs"
+                  onClick={() => setReceiptOpen(true)}
+                >
+                  <Receipt className="h-3.5 w-3.5" /> Receipt
+                </button>
+                <button
+                  className="nx-btn nx-btn-ghost text-xs"
+                  onClick={() => setBookingOpen(true)}
+                >
+                  <CalendarPlus className="h-3.5 w-3.5" /> Book a mentor
+                </button>
+              </div>
             </div>
             <div className="space-y-1.5">
               {meetings.length === 0 && (
@@ -429,6 +439,15 @@ export function ClientSheet({ client, onClose, onChanged }: ClientSheetProps) {
         clientName={client?.full_name ?? ""}
         onClose={() => setBookingOpen(false)}
         onBooked={onChanged}
+      />
+
+      <ReceiptBuilder
+        open={receiptOpen}
+        clientId={client?.id ?? null}
+        clientName={client?.full_name ?? ""}
+        clientEmail={client?.email ?? null}
+        onClose={() => setReceiptOpen(false)}
+        onIssued={onChanged}
       />
     </Sheet>
   );

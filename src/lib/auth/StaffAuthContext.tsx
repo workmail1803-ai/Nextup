@@ -127,9 +127,25 @@ export function StaffAuthProvider({ children }: { children: React.ReactNode }) {
     async (identifier: string, password: string): Promise<SignInResult> => {
       const email = resolveIdentifier(identifier);
       if (!email) return { ok: false, error: "Enter your username." };
-      if (!password) return { ok: false, error: "Enter your password." };
 
-      const { error } = await staffSupabase.auth.signInWithPassword({ email, password });
+      // Passwords get mangled between a person and this box more often than
+      // they are genuinely wrong: pasting drags a trailing space, and phone and
+      // desktop autocorrect turn a typed hyphen into an en or em dash. Both
+      // produce "wrong password" against a password that is right, so normalise
+      // before judging rather than blaming the person.
+      const cleaned = password
+        .trim()
+        .replace(/[‐-―−]/g, "-")   // dashes -> hyphen-minus
+        .replace(/[‘’]/g, "'")           // smart quotes
+        .replace(/[“”]/g, '"')
+        .replace(/ /g, " ");                  // non-breaking space
+
+      if (!cleaned) return { ok: false, error: "Enter your password." };
+
+      const { error } = await staffSupabase.auth.signInWithPassword({
+        email,
+        password: cleaned,
+      });
       if (error) {
         // Deliberately does not distinguish "no such user" from "wrong
         // password" — that difference is an account-enumeration oracle.

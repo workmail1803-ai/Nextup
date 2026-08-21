@@ -63,8 +63,11 @@ function suggestPassword(): string {
   const words = ["harbour", "lantern", "meadow", "compass", "ginger", "rocket",
                  "velvet", "cobalt", "summit", "pebble", "tundra", "quartz"];
   const pick = () => words[Math.floor(Math.random() * words.length)];
-  const n = Math.floor(Math.random() * 90) + 10;
-  return `${pick()}-${pick()}-${n}`;
+  const n = Math.floor(Math.random() * 900) + 100;
+  // Letters and digits only. Hyphens read well but autocorrect on phones and
+  // some desktop keyboards turns them into en dashes, which fails as a wrong
+  // password against a password the person typed correctly.
+  return `${pick()}${pick()}${n}`;
 }
 
 export function StaffSection() {
