@@ -117,6 +117,7 @@ Role in React decides what renders; Postgres decides what is readable.
 | 0023 | staff avatars (public bucket — a mentor's photo is shown to anonymous visitors) |
 | 0024 | receipts + portal notifications |
 | 0025/26 | staff deletion rules: anyone but yourself, never the last admin |
+| 0027 | `site_stats` — the four home-page figures, editable in Admin → Home figures |
 
 ---
 
@@ -178,7 +179,14 @@ Each of these cost real debugging. They will recur.
    form, indistinguishable from a wrong password. `DELETE /api/admin/staff`
    removes the auth user *first*.
 
-8. **Timezone.** Availability is wall-clock Asia/Dhaka; `scheduled_at` is
+8. **`.select()` after an insert breaks anon writes.** It issues a RETURNING,
+   which needs SELECT — and anon has INSERT-only on appointments, messages and
+   enrollments by design. All three public forms were silently broken from 0012
+   until it was found. Measured: `return=minimal` -> 201, `return=representation`
+   -> 42501. A test that used `return=minimal` passed and proved nothing; test
+   the shape the app actually sends.
+
+9. **Timezone.** Availability is wall-clock Asia/Dhaka; `scheduled_at` is
    timestamptz. Postgres `current_date` is UTC and will disagree with the local
    work day — this made an attendance test look like a failed write.
 

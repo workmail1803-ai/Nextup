@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-    ArrowLeft, Calendar, ClipboardList, FolderKanban, Globe, LayoutDashboard,
+    ArrowLeft, BarChart3, Calendar, ClipboardList, FolderKanban, Globe, LayoutDashboard,
     Loader2, MessageSquare, Package, RefreshCw, Users, Wallet,
 } from "lucide-react";
 import { db, Package as PackageType, Enrollment, Message, Destination } from "@/lib/supabase";
@@ -12,14 +12,16 @@ import { StaffSection } from "./_sections/StaffSection";
 import { ClientsSection } from "./_sections/ClientsSection";
 import { AppointmentsSection } from "./_sections/AppointmentsSection";
 import { FinanceSection } from "./_sections/FinanceSection";
+import { SiteStatsSection } from "./_sections/SiteStatsSection";
 import { AnimatedNumber } from "@/components/internal";
 
-type Tab = "overview" | "staff" | "clients" | "appointments" | "finance" | "enrollments" | "messages" | "packages" | "destinations";
+type Tab = "overview" | "staff" | "clients" | "appointments" | "finance" | "enrollments" | "messages" | "packages" | "destinations" | "sitestats";
 
 const NAV_ICONS: Record<Tab, typeof LayoutDashboard> = {
     overview: LayoutDashboard, staff: Users, clients: FolderKanban,
     appointments: Calendar, finance: Wallet, enrollments: ClipboardList,
     messages: MessageSquare, packages: Package, destinations: Globe,
+    sitestats: BarChart3,
 };
 
 const fade = { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 }, transition: { duration: 0.15 } };
@@ -330,6 +332,10 @@ export default function AdminPage() {
 
                     {activeTab === "finance" && (
                         <motion.div key="finance" {...fade}><FinanceSection /></motion.div>
+                    )}
+
+                    {activeTab === "sitestats" && (
+                        <motion.div key="sitestats" {...fade}><SiteStatsSection /></motion.div>
                     )}
 
                     {activeTab === "overview" && (
