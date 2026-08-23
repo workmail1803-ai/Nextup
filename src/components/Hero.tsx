@@ -5,6 +5,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { Check, Plane, ArrowRight, Star } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { BorderBeam } from "@/components/magicui/border-beam";
+import FeaturePhotos from "@/components/sections/FeaturePhotos";
 
 const stages = [
   { n: "01", label: "Discovery call", sub: "Understand your goals & budget" },
@@ -225,6 +226,11 @@ export default function Hero() {
               </p>
             </div>
           </motion.div>
+
+          {/* Real photographs. Everything else on this page is a claim in text;
+              this is the one place the site shows rather than asserts. Renders
+              nothing until an admin has added a photo. */}
+          <FeaturePhotos />
         </div>
 
         {/* Interactive journey */}

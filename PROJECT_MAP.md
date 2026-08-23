@@ -118,6 +118,7 @@ Role in React decides what renders; Postgres decides what is readable.
 | 0024 | receipts + portal notifications |
 | 0025/26 | staff deletion rules: anyone but yourself, never the last admin |
 | 0027 | `site_stats` — the four home-page figures, editable in Admin → Home figures |
+| 0028 | `feature_photos` — the sliding photo card on the hero, Admin → Home photos |
 
 ---
 
