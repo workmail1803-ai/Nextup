@@ -205,6 +205,20 @@ body {
 }
 
 /* — Marquee (logos) ------------------------------------------------------- */
+/* Used by the hero photo card, which mounts only once its photos have loaded —
+   so it arrives rather than popping into the layout. */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @keyframes fadeUp {
+    from { opacity: 1; transform: none; }
+    to   { opacity: 1; transform: none; }
+  }
+}
+
 @keyframes marquee {
   from { transform: translateX(0); }
   to { transform: translateX(calc(-50% - 0px)); }

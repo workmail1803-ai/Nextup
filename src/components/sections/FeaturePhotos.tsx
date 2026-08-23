@@ -66,27 +66,19 @@ export default function FeaturePhotos() {
     return () => clearInterval(id);
   }, [photos.length, paused]);
 
-  // Nothing configured yet: render nothing rather than an empty frame. An admin
-  // sees the upload panel; a visitor should not see the absence.
-  if (loaded && photos.length === 0) return null;
-
-  if (!loaded) {
-    return (
-      <div
-        className="mt-8 w-full max-w-[26rem] overflow-hidden rounded-2xl border border-line bg-surface"
-        style={{ aspectRatio: "4 / 3" }}
-        aria-hidden
-      >
-        <div className="h-full w-full animate-pulse bg-paper-2" />
-      </div>
-    );
-  }
+  // Render NOTHING until we know there is something to show.
+  //
+  // A skeleton here was wrong: it promised a card, and when the fetch came back
+  // empty the card removed itself — so a visitor saw a frame appear and vanish,
+  // which reads as a broken page. Whether any photo exists is not knowable
+  // before the fetch resolves, so the honest placeholder is no placeholder.
+  if (!loaded || photos.length === 0) return null;
 
   const current = photos[i];
 
   return (
     <figure
-      className="group relative mt-8 w-full max-w-[26rem] overflow-hidden rounded-2xl border border-line bg-surface shadow-[0_24px_56px_-28px_rgba(26,22,17,0.35)]"
+      className="group relative mt-8 w-full max-w-[26rem] animate-[fadeUp_.5s_cubic-bezier(.22,1,.36,1)_both] overflow-hidden rounded-2xl border border-line bg-surface shadow-[0_24px_56px_-28px_rgba(26,22,17,0.35)]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
