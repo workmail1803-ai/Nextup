@@ -5,7 +5,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import {
     ArrowLeft, BarChart3, Calendar, Images, ClipboardList, FolderKanban, Globe, LayoutDashboard,
-    Loader2, MessageSquare, Package, RefreshCw, Users, Wallet,
+    Loader2, MessageSquare, Package, Quote, RefreshCw, Users, Wallet,
 } from "lucide-react";
 import { db, Package as PackageType, Enrollment, Message, Destination } from "@/lib/supabase";
 import { StaffSection } from "./_sections/StaffSection";
@@ -14,9 +14,10 @@ import { AppointmentsSection } from "./_sections/AppointmentsSection";
 import { FinanceSection } from "./_sections/FinanceSection";
 import { SiteStatsSection } from "./_sections/SiteStatsSection";
 import { FeaturePhotosSection } from "./_sections/FeaturePhotosSection";
+import { TestimonialsSection } from "./_sections/TestimonialsSection";
 import { AnimatedNumber } from "@/components/internal";
 
-type Tab = "overview" | "staff" | "clients" | "appointments" | "finance" | "enrollments" | "messages" | "packages" | "destinations" | "sitestats" | "photos";
+type Tab = "overview" | "staff" | "clients" | "appointments" | "finance" | "enrollments" | "messages" | "packages" | "destinations" | "sitestats" | "photos" | "reviews";
 
 const NAV_ICONS: Record<Tab, typeof LayoutDashboard> = {
     overview: LayoutDashboard, staff: Users, clients: FolderKanban,
@@ -24,6 +25,7 @@ const NAV_ICONS: Record<Tab, typeof LayoutDashboard> = {
     messages: MessageSquare, packages: Package, destinations: Globe,
     sitestats: BarChart3,
     photos: Images,
+    reviews: Quote,
 };
 
 const fade = { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 }, transition: { duration: 0.15 } };
@@ -249,6 +251,7 @@ export default function AdminPage() {
         { id: "destinations" as Tab, label: "Destinations", badge: stats.totalDestinations },
         { id: "sitestats" as Tab, label: "Home figures", badge: undefined },
         { id: "photos" as Tab, label: "Home photos", badge: undefined },
+        { id: "reviews" as Tab, label: "Reviews", badge: undefined },
     ];
 
     const inputCls = "w-full rounded-lg bg-[var(--ad-bg-raised)] px-3 py-2.5 text-[13px] text-[var(--ad-text)] border border-[var(--ad-border)] focus:border-[var(--ad-accent)] focus:outline-none transition-colors placeholder:text-[var(--ad-text-quaternary)]";
@@ -344,6 +347,10 @@ export default function AdminPage() {
 
                     {activeTab === "photos" && (
                         <motion.div key="photos" {...fade}><FeaturePhotosSection /></motion.div>
+                    )}
+
+                    {activeTab === "reviews" && (
+                        <motion.div key="reviews" {...fade}><TestimonialsSection /></motion.div>
                     )}
 
                     {activeTab === "overview" && (

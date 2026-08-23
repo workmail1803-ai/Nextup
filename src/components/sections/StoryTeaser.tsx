@@ -1,22 +1,15 @@
-import { ImageIcon } from "lucide-react";
 import Reveal from "@/components/ui/Reveal";
 import Button from "@/components/ui/Button";
+import TeamPhoto from "@/components/sections/TeamPhoto";
 
 export default function StoryTeaser() {
   return (
     <section className="bg-paper py-20 md:py-28">
       <div className="container-edge grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
-        {/* Photo frame — placeholder for a real team photo */}
+        {/* Team photo — uploaded in Admin → Home photos */}
         <Reveal y={28}>
           <div className="relative">
-            <div className="aspect-[4/3] overflow-hidden rounded-2xl border border-line bg-gradient-to-br from-[#efe7d9] to-[#e3d8c4] shadow-[var(--shadow-md)]">
-              <div className="flex h-full flex-col items-center justify-center text-center text-accent-ink/50">
-                <ImageIcon className="h-10 w-10" strokeWidth={1.5} />
-                <p className="mt-3 px-8 text-sm font-medium">
-                  Team photo — the founders on campus in Europe
-                </p>
-              </div>
-            </div>
+            <TeamPhoto aspect="aspect-[4/3]" />
             <div className="absolute -bottom-5 -right-3 hidden rounded-2xl border border-line bg-surface px-5 py-4 shadow-[var(--shadow-md)] sm:block">
               <p className="font-display text-2xl font-semibold text-ink">Est. 2022</p>
               <p className="text-xs text-faint">Founded by students abroad</p>

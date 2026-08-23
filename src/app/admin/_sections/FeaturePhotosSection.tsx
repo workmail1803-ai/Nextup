@@ -13,6 +13,7 @@ import {
   ArrowDown, ArrowUp, Eye, EyeOff, ImagePlus, Loader2, Trash2,
 } from "lucide-react";
 import { staffSupabase } from "@/lib/auth/supabase-staff";
+import { TeamPhotoCard } from "./TeamPhotoCard";
 
 interface Photo {
   id: string;
@@ -155,6 +156,10 @@ export function FeaturePhotosSection() {
 
   return (
     <div>
+      {/* The other admin-managed image on the home page. Both live here so an
+          admin looking for "a picture on the site" finds one screen, not two. */}
+      <TeamPhotoCard />
+
       <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="text-[15px] font-semibold text-[var(--ad-text)]">Home page photos</h2>

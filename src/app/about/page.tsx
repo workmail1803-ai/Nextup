@@ -1,4 +1,4 @@
-import { ImageIcon } from "lucide-react";
+import TeamPhoto from "@/components/sections/TeamPhoto";
 import PageHero from "@/components/ui/PageHero";
 import Reveal from "@/components/ui/Reveal";
 import SectionHeading from "@/components/ui/SectionHeading";
@@ -94,18 +94,11 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Team photo placeholder */}
+      {/* Team photo — the same upload as the home page, cropped wider */}
       <section className="bg-paper-2 py-16 md:py-24">
         <div className="container-edge">
           <Reveal y={28}>
-            <div className="relative aspect-[21/9] overflow-hidden rounded-2xl border border-line bg-gradient-to-br from-[#efe7d9] to-[#e3d8c4] shadow-[var(--shadow-md)]">
-              <div className="flex h-full flex-col items-center justify-center text-center text-accent-ink/50">
-                <ImageIcon className="h-10 w-10" strokeWidth={1.5} />
-                <p className="mt-3 px-8 text-sm font-medium">
-                  Team photo — the NextUp founders on campus across Europe
-                </p>
-              </div>
-            </div>
+            <TeamPhoto aspect="aspect-[21/9]" />
           </Reveal>
         </div>
       </section>
