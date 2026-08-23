@@ -69,8 +69,20 @@ export default function BookPage() {
   const selectedSlot = slots.find((s) => s.key === slotKey) ?? null;
 
   async function submit() {
-    if (!form.name.trim() || !form.phone.trim()) {
-      setError("Please enter your name and phone number.");
+    // Say which field and why. The previous version accepted anything, then the
+    // service rejected it and the catch below reported "try again in a moment"
+    // — advice that could never work, for a problem it never named.
+    if (!form.name.trim()) {
+      setError("Please enter your name.");
+      return;
+    }
+    const digits = form.phone.replace(/[^0-9]/g, "");
+    if (digits.length < 10) {
+      setError("Please enter a valid phone number, like 01712 345678.");
+      return;
+    }
+    if (form.email.trim() && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email.trim())) {
+      setError("That email address doesn't look right. Leave it blank if you'd rather not share one.");
       return;
     }
     setSubmitting(true);
@@ -90,8 +102,13 @@ export default function BookPage() {
     } catch (e) {
       if (e instanceof DuplicatePhoneError) {
         setError("This phone number already has a booking with us. We'll be in touch — or call us directly.");
+      } else if (e instanceof Error && e.message === "INVALID_PHONE") {
+        setError("Please enter a valid phone number, like 01712 345678.");
       } else {
-        setError("Something went wrong. Please try again in a moment.");
+        // Genuinely unexpected. Log it — the generic line below tells the person
+        // nothing, so at least leave something behind for whoever investigates.
+        console.error("Booking failed:", e);
+        setError("We couldn't save that booking. Please try again, or message us on WhatsApp.");
       }
     } finally {
       setSubmitting(false);

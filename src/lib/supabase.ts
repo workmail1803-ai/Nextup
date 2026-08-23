@@ -135,14 +135,10 @@ export const db = {
             if (error) throw error;
             return data as Enrollment[];
         },
-        async create(enrollment: EnrollmentInsert): Promise<Enrollment> {
-            const { data, error } = await supabase
-                .from("enrollments")
-                .insert(enrollment)
-                .select()
-                .single();
+        /** Public payment submission. Returns nothing — see messages.create. */
+        async create(enrollment: EnrollmentInsert): Promise<void> {
+            const { error } = await supabase.from("enrollments").insert(enrollment);
             if (error) throw error;
-            return data as Enrollment;
         },
         async updateStatus(id: string, status: Enrollment["status"], notes?: string): Promise<Enrollment> {
             const { data, error } = await staffSupabase
@@ -204,14 +200,19 @@ export const db = {
             if (error) throw error;
             return data as Message[];
         },
-        async create(message: MessageInsert): Promise<Message> {
-            const { data, error } = await supabase
-                .from("messages")
-                .insert(message)
-                .select()
-                .single();
+        /**
+         * Public contact form. Returns nothing on purpose.
+         *
+         * `.select()` after an insert issues a RETURNING, and RETURNING needs
+         * SELECT permission. Anon has INSERT on this table and deliberately no
+         * SELECT — a visitor must not be able to read other people's messages.
+         * So asking for the row back fails the whole write with a bare
+         * "violates row-level security policy", even though the insert itself
+         * is allowed.
+         */
+        async create(message: MessageInsert): Promise<void> {
+            const { error } = await supabase.from("messages").insert(message);
             if (error) throw error;
-            return data as Message;
         },
         async updateStatus(id: string, status: Message["status"]): Promise<Message> {
             const update: MessageUpdate = { status };

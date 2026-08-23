@@ -30,8 +30,16 @@ export class DuplicatePhoneError extends Error {
 }
 
 export const AppointmentService = {
-  /** Public booking. Enforces a unique phone with a friendly error. */
-  async create(input: AppointmentInsert): Promise<Appointment> {
+  /**
+   * Public booking. Returns nothing on purpose.
+   *
+   * `.select()` after the insert issues a RETURNING, which needs SELECT
+   * permission. Anon may INSERT here and deliberately may not SELECT — a
+   * visitor must not be able to read the booking queue. Asking for the row back
+   * therefore failed the entire booking with an RLS error, which the form
+   * reported as "something went wrong, try again in a moment".
+   */
+  async create(input: AppointmentInsert): Promise<void> {
     const phone = normalizePhone(input.phone);
     if (!phone) throw new Error("INVALID_PHONE");
 
@@ -46,22 +54,17 @@ export const AppointmentService = {
     if (existing) throw new DuplicatePhoneError();
 
     const status: AppointmentStatus = input.preferred_mentor_id ? "assigned" : "pending";
-    const { data, error } = await anonSupabase
-      .from(TABLE)
-      .insert({
-        ...input,
-        phone,
-        assigned_mentor_id: input.preferred_mentor_id ?? null,
-        status,
-      })
-      .select()
-      .single();
+    const { error } = await anonSupabase.from(TABLE).insert({
+      ...input,
+      phone,
+      assigned_mentor_id: input.preferred_mentor_id ?? null,
+      status,
+    });
     if (error) {
       // Unique-violation race → same friendly error.
       if ((error as { code?: string }).code === "23505") throw new DuplicatePhoneError();
       throw error;
     }
-    return data as Appointment;
   },
 
   /** Full queue for staff/admin, newest first. */
