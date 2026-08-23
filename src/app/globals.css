@@ -204,9 +204,9 @@ body {
   mask-image: radial-gradient(ellipse at center, #000 30%, transparent 75%);
 }
 
-/* — Marquee (logos) ------------------------------------------------------- */
-/* Used by the hero photo card, which mounts only once its photos have loaded —
-   so it arrives rather than popping into the layout. */
+/* — Arrival --------------------------------------------------------------- */
+/* Used by anything that mounts only once its data has loaded, so it arrives
+   rather than popping into the layout. */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: none; }
@@ -219,6 +219,7 @@ body {
   }
 }
 
+/* — Marquee (partner logos) ----------------------------------------------- */
 @keyframes marquee {
   from { transform: translateX(0); }
   to { transform: translateX(calc(-50% - 0px)); }
@@ -229,6 +230,34 @@ body {
   animation: marquee 38s linear infinite;
 }
 .marquee-track:hover { animation-play-state: paused; }
+
+/* — Marquee (feature photos) ---------------------------------------------- */
+/* Slides by the width of exactly one copy of the photo list, then resets. At
+   the reset the next copy is already occupying that space, so the loop has no
+   visible seam. `--mq-w` and the duration are set from a measurement in JS —
+   a hard-coded distance only works for one photo count and one screen width. */
+@keyframes photo-marquee-left {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(calc(var(--mq-w) * -1), 0, 0); }
+}
+@keyframes photo-marquee-right {
+  from { transform: translate3d(calc(var(--mq-w) * -1), 0, 0); }
+  to   { transform: translate3d(0, 0, 0); }
+}
+.photo-marquee-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+.photo-marquee-track[data-paused="true"] { animation-play-state: paused; }
+
+/* Nothing drifts on its own for a reader who asked for stillness. The row
+   becomes a normal horizontal scroller instead, so the photos stay reachable. */
+@media (prefers-reduced-motion: reduce) {
+  .photo-marquee-track { animation: none !important; }
+}
 
 /* — Scrollbar (light) ----------------------------------------------------- */
 ::-webkit-scrollbar { width: 11px; height: 11px; }

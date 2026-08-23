@@ -1,7 +1,7 @@
 "use client";
 
 // =============================================================================
-// FeaturePhotosSection — manage the sliding photo card on the home page.
+// FeaturePhotosSection — manage the scrolling photo band on the home page.
 //
 // Upload, caption, reorder, hide, delete. Deleting removes the file from
 // storage as well as the row: a public bucket that only ever grows is a slow
@@ -159,7 +159,7 @@ export function FeaturePhotosSection() {
         <div>
           <h2 className="text-[15px] font-semibold text-[var(--ad-text)]">Home page photos</h2>
           <p className="mt-1 max-w-xl text-[13px] text-[var(--ad-text-tertiary)]">
-            The sliding card on the home page. Real photographs of students, campuses and arrivals
+            The endlessly scrolling band on the home page. Real photographs of students, campuses
             do more for trust than any claim in text — this is the one place the site shows rather
             than tells. Landscape shots work best.
           </p>
@@ -199,7 +199,7 @@ export function FeaturePhotosSection() {
           <ImagePlus className="mx-auto h-7 w-7 text-[var(--ad-text-quaternary)]" />
           <p className="mt-3 text-[13px] font-medium text-[var(--ad-text)]">No photos yet</p>
           <p className="mt-1 text-[12px] text-[var(--ad-text-tertiary)]">
-            The card stays hidden on the home page until you add one.
+            The band stays hidden on the home page until you add one.
           </p>
         </div>
       ) : (

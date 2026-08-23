@@ -226,11 +226,6 @@ export default function Hero() {
               </p>
             </div>
           </motion.div>
-
-          {/* Real photographs. Everything else on this page is a claim in text;
-              this is the one place the site shows rather than asserts. Renders
-              nothing until an admin has added a photo. */}
-          <FeaturePhotos />
         </div>
 
         {/* Interactive journey */}
@@ -239,8 +234,19 @@ export default function Hero() {
         </div>
       </div>
 
+      {/* Real photographs. Everything else on this page is a claim in text; this
+          is the one place the site shows rather than asserts.
+
+          Full-bleed rather than inside the column above: an endless strip needs
+          the whole viewport to read as endless — confined to 26rem it shows one
+          and a half cards and looks like a broken carousel. Renders nothing at
+          all until an admin has added a photo. */}
+      <div className="-mt-6 pb-10 lg:-mt-10">
+        <FeaturePhotos />
+      </div>
+
       {/* Scroll cue */}
-      <div className="container-edge -mt-6 hidden items-center gap-2 pb-8 text-xs text-faint lg:flex">
+      <div className="container-edge hidden items-center gap-2 pb-8 text-xs text-faint lg:flex">
         <ArrowRight className="h-3.5 w-3.5 rotate-90" />
         Scroll to see how it works
       </div>
