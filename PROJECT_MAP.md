@@ -191,6 +191,17 @@ Each of these cost real debugging. They will recur.
    timestamptz. Postgres `current_date` is UTC and will disagree with the local
    work day — this made an attendance test look like a failed write.
 
+10. **Config that nothing reads is a note, not configuration.** `ADMIN_USERNAME`,
+    `ADMIN_EMAIL` and `ADMIN_PASSWORD` sat in `.env.local` while **no code
+    anywhere read them**. The account was created by hand once; when its staff
+    row was later deleted from the admin screen the auth user went with it,
+    nothing noticed, and signing in as `admin` returned "Invalid login
+    credentials" indefinitely — indistinguishable from a wrong password.
+    Migration 0026 did not stop the delete because it only protects the *last*
+    admin, and Fahim is one too: correct rule, wrong outcome.
+    `node scripts/ensure-admin.mjs` now owns that account — idempotent, repairs
+    the auth user and the staff row, and proves it by signing in at the end.
+
 ---
 
 ## 7. Current state (2026-08-22)
